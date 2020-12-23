@@ -3,6 +3,8 @@ package com.doubleslash.sharedsurvey.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class MemberRequestDto {
@@ -15,4 +17,5 @@ public class MemberRequestDto {
     private String name;
 
     private String password;
+
 }

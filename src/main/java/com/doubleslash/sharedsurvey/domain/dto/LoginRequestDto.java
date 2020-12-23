@@ -3,12 +3,15 @@ package com.doubleslash.sharedsurvey.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+
 @Getter
 @Setter
-public class SurveyUpdateDto {
+public class LoginRequestDto {
 
-    private Long surveyId;
+    private String memberId;
 
-    private boolean state;
+    private String password;
+
+
 
 }

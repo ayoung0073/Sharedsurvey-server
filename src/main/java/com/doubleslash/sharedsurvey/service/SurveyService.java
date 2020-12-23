@@ -5,18 +5,14 @@ import com.doubleslash.sharedsurvey.domain.entity.Answer;
 import com.doubleslash.sharedsurvey.domain.entity.Member;
 import com.doubleslash.sharedsurvey.domain.entity.Question;
 import com.doubleslash.sharedsurvey.domain.entity.Survey;
-import com.doubleslash.sharedsurvey.repository.AnswerRepository;
-import com.doubleslash.sharedsurvey.repository.MemberRepository;
-import com.doubleslash.sharedsurvey.repository.QuestionRepository;
-import com.doubleslash.sharedsurvey.repository.SurveyRepository;
+import com.doubleslash.sharedsurvey.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -25,19 +21,27 @@ public class SurveyService {
     private final MemberRepository memberRepository;
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
+    private final SurveyWriterRepository surveyWriterRepository;
+
 
     @Transactional
-    public Long updateSurvey(Long id, SurveyUpdateDto updateDto){
-        Survey survey = surveyRepository.findById(id).orElseThrow();
-        survey.updateSurvey(updateDto);
+    public boolean updateSurvey(Long id, SurveyUpdateDto updateDto){
+        Authentication user = SecurityContextHolder.getContext().getAuthentication();
 
-        return id;
+        Survey survey = surveyRepository.findById(id).get();
+        if(survey.getWriter() == memberRepository.findByMemberId(user.getName()).get().getId()) {
+            survey.updateSurvey(updateDto);
+            return true;
+        }
+        else return false;
     }
 
     @Transactional
     public Survey registerSurvey(SurveyRequestDto requestDto){
-        if(memberRepository.findById(requestDto.getWriterId()).isPresent()) {
-            requestDto.setWriterId(requestDto.getWriterId());
+        Authentication user = SecurityContextHolder.getContext().getAuthentication();
+        Optional<Member> optional = memberRepository.findByMemberId(user.getName());
+        if(optional.isPresent()){
+            requestDto.setWriterId(optional.get().getId());
             Survey survey = new Survey(requestDto);
             surveyRepository.save(survey);
             List<QuestionRequestDto> questions = requestDto.getQuestions();
@@ -53,7 +57,7 @@ public class SurveyService {
 
     @Transactional
     public Map<String, Object> getSurveyAndQuestions(Long id){
-        Survey survey = surveyRepository.findById(id).orElseThrow();
+        Survey survey = surveyRepository.findById(id).get();
         List<Question> questions = questionRepository.findAllBySurveyId(id);
 
         Map<String, Object> map = new HashMap<>();
@@ -66,12 +70,19 @@ public class SurveyService {
     @Transactional
     public boolean registerAnswer(AnswerRequestDto requestDto) {
 
-        Long writerId = requestDto.getWriterId();
-        for (QuestionAnswerDto dto: requestDto.getAnswer()) {
-            Answer answer = new Answer(writerId, dto.getQuestionId(), dto.getAnswerText());
-            answerRepository.save(answer);
+        Authentication user = SecurityContextHolder.getContext().getAuthentication();
+
+        Optional<Member> optional = memberRepository.findByMemberId(user.getName());
+        if(!optional.isPresent()) {
+            System.out.println(optional.get().getId());
+            requestDto.setWriterId(optional.get().getId());
+            for (QuestionAnswerDto dto : requestDto.getAnswer()) {
+                Answer answer = new Answer(requestDto.getWriterId(), dto.getQuestionId(), dto.getAnswerText());
+                answerRepository.save(answer);
+            }
+            return true;
         }
-        return true;
+        else return false;
     }
 
     @Transactional
@@ -85,7 +96,6 @@ public class SurveyService {
             questionId = questions.get(i).getId();
             map.put(questionId, answerRepository.findAllByQuestionId(questionId));
         }
-
         return map;
     }
 }

@@ -13,7 +13,6 @@ import javax.persistence.Id;
 @Entity
 public class Question {
     // id, question(varchar), questionCategoryId
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

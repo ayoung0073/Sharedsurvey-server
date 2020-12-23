@@ -34,8 +34,6 @@ public class Survey extends Timestamped {
 
     private boolean state;
 
-    private int responseCount;
-
     private int point;
 
     private String picture;
@@ -47,7 +45,7 @@ public class Survey extends Timestamped {
         this.startDate = requestDto.getStartDate();
         this.endDate = requestDto.getEndDate();
         this.state = true;
-        this.point = 0;
+        this.point = requestDto.getPoint();
         this.picture = requestDto.getPicture();
     }
 

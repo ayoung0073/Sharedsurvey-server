@@ -24,7 +24,6 @@ public class SurveyController {
 
     @PostMapping("/survey")
     public Survey createSurvey(@RequestBody SurveyRequestDto requestDto){
-
         return surveyService.registerSurvey(requestDto);
     }
 
@@ -39,18 +38,18 @@ public class SurveyController {
     }
 
     @PutMapping("/survey/{id}")
-    public Long updateSurvey(@PathVariable Long id, @RequestBody SurveyUpdateDto updateDto){
-        return surveyService.updateSurvey(id,updateDto);
+    public boolean updateSurvey(@PathVariable Long id, @RequestBody SurveyUpdateDto updateDto){
+        if(surveyService.updateSurvey(id,updateDto)) return true;
+        else return false;
     }
 
     @PostMapping("/survey/answer")
     public boolean createAnswer(@RequestBody AnswerRequestDto requestDto){
-
         return surveyService.registerAnswer(requestDto);
     }
 
     @GetMapping("/survey/answer/{id}") // surveyId
-public Map<Object, Object> getAnswer(@PathVariable Long id){
+    public Map<Object, Object> getAnswer(@PathVariable Long id){
         return surveyService.getAnswers(id);
     }
 
