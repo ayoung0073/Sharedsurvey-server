@@ -92,4 +92,12 @@ public class Member implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public void usePoint(int point){
+        this.point = this.point - point;
+    }
+
+    public void getPoint(int point){
+        this.point = this.point + point;
+    }
 }

@@ -38,17 +38,13 @@ public class MemberController {
         return memberService.findAll();
     }
 
+    @PostMapping("/idCheck")
+    public boolean idCheck(@RequestBody MemberRequestDto requestDto){
+        return !memberRepository.findByMemberId(requestDto.getMemberId()).isPresent();
+    }
+
     @PostMapping("/join")
     public Long createMember(@RequestBody MemberRequestDto requestDto){
-//        if(memberService.register(requestDto)){
-//            Member member = new Member(requestDto);
-//            return member;
-//        }
-//        else {
-//            return null;
-//        }
-
-
         if (memberRepository.findByMemberId(requestDto.getMemberId()).isPresent()) {
             return null;
         } else {
@@ -69,14 +65,6 @@ public class MemberController {
     @PostMapping("/login") // Map<String, Object>
     public Map<String, Object> login(@RequestBody LoginRequestDto requestDto) {
           Map<String, Object> map = new HashMap<>();
-//        String token = memberService.login(requestDto);
-//        if(token != null){
-//            map.put("token",memberService.login(requestDto));
-//            map.put("success", true);
-//        }
-//        else{map.put("success", false);}
-//
-//        return map;
         if (!memberRepository.findByMemberId(requestDto.getMemberId()).isPresent()) {
             map.put("success", false);
             map.put("response","아이디 존재하지 않습니다.");

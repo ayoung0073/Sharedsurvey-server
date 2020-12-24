@@ -12,4 +12,6 @@ public class QuestionRequestDto {
     private int questionCategoryId;
 
     private String questionText;
+
+    private boolean required;
 }

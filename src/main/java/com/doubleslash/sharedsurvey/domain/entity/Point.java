@@ -1,6 +1,9 @@
 package com.doubleslash.sharedsurvey.domain.entity;
 
+import com.doubleslash.sharedsurvey.domain.Timestamped;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,14 +12,25 @@ import javax.persistence.Id;
 
 @Getter
 @Entity
-public class Point {
+public class Point extends Timestamped {
     // id, question(varchar), questionCategoryId
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String questionText;
+    private Long memberId;
 
-    private int questionCategoryId;
+    private boolean type;
+
+    private Long surveyId;
+
+    public Point(Long memberId, boolean type, Long surveyId){
+        this.memberId = memberId;
+        this.type = type;
+        this.surveyId = surveyId;
+    }
+
+    public Point(){}
+
 }

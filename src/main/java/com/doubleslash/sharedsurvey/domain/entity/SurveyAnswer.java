@@ -11,11 +11,11 @@ import javax.persistence.Id;
 @NoArgsConstructor
 @Getter
 @Entity
-public class SurveyWriter {
+public class SurveyAnswer {
 
     @Id
     private Long surveyId;
 
-    private Long writerId;
+    private Long answerMemberId;
 
 }

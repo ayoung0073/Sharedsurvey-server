@@ -38,6 +38,8 @@ public class Survey extends Timestamped {
 
     private String picture;
 
+    private int responseCount;
+
     public Survey(SurveyRequestDto requestDto){
         this.writer = requestDto.getWriterId();
         this.name = requestDto.getName();
@@ -55,6 +57,11 @@ public class Survey extends Timestamped {
 
     public boolean updateSurvey(SurveyUpdateDto updateDto){
         this.state = updateDto.isState();
+        return true;
+    }
+
+    public boolean updateCount(){
+        this.responseCount ++;
         return true;
     }
 }

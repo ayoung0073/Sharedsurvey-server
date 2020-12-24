@@ -23,10 +23,13 @@ public class Question {
 
     private String questionText;
 
+    private boolean required;
+
     public Question(QuestionRequestDto requestDto){
         this.surveyId = requestDto.getSurveyId();
         this.questionCategoryId = requestDto.getQuestionCategoryId();
         this.questionText = requestDto.getQuestionText();
+        this.required = requestDto.isRequired();
     }
 
     public Question() {

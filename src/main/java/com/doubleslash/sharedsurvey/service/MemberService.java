@@ -1,26 +1,15 @@
 package com.doubleslash.sharedsurvey.service;
 
-import com.doubleslash.sharedsurvey.config.security.JwtTokenProvider;
-import com.doubleslash.sharedsurvey.config.security.user.Role;
-import com.doubleslash.sharedsurvey.config.security.user.SecurityMember;
-import com.doubleslash.sharedsurvey.domain.dto.LoginRequestDto;
-import com.doubleslash.sharedsurvey.domain.dto.MemberRequestDto;
 import com.doubleslash.sharedsurvey.domain.entity.Member;
 import com.doubleslash.sharedsurvey.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
