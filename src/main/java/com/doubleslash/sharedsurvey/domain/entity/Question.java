@@ -25,14 +25,24 @@ public class Question {
 
     private boolean required;
 
+    private boolean existFile;
+
+    private String filename;
+
     public Question(QuestionRequestDto requestDto){
         this.surveyId = requestDto.getSurveyId();
         this.questionCategoryId = requestDto.getQuestionCategoryId();
         this.questionText = requestDto.getQuestionText();
         this.required = requestDto.isRequired();
+        this.filename = requestDto.getFilename();
+        this.existFile = requestDto.isExistFile();
     }
 
     public Question() {
 
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 }

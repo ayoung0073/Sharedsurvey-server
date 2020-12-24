@@ -11,6 +11,7 @@ import com.doubleslash.sharedsurvey.repository.AnswerRepository;
 import com.doubleslash.sharedsurvey.repository.MemberRepository;
 import com.doubleslash.sharedsurvey.repository.SurveyAnswerRepository;
 import com.doubleslash.sharedsurvey.repository.SurveyRepository;
+import com.doubleslash.sharedsurvey.service.FileService;
 import com.doubleslash.sharedsurvey.service.PointService;
 import com.doubleslash.sharedsurvey.service.SurveyService;
 import lombok.Getter;
@@ -19,7 +20,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -28,14 +32,19 @@ public class SurveyController {
 
     private final SurveyService surveyService;
     private final PointService pointService;
+    private final FileService fileService;
+
     private final MemberRepository memberRepository;
     private final SurveyRepository surveyRepository;
     private final AnswerRepository answerRepository;
     private final SurveyAnswerRepository surveyAnswerRepository;
 
+
     @PostMapping("/survey") // 설문조사 등록
-    public Survey createSurvey(@RequestBody SurveyRequestDto requestDto){
-        return surveyService.registerSurvey(requestDto);
+    public boolean createSurvey(@RequestPart(value = "image",required = false) MultipartFile[] files,
+                                @RequestPart(value = "requestDto") SurveyRequestDto requestDto) throws IOException {
+        return surveyService.registerSurvey(requestDto, files);
+
     }
 
     // 설문조사 응답하기

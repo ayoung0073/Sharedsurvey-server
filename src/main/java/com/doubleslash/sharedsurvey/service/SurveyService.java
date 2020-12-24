@@ -7,8 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -22,9 +25,15 @@ public class SurveyService {
     private final SurveyAnswerRepository surveyAnswerRepository;
 
     @Transactional
-    public Survey registerSurvey(SurveyRequestDto requestDto){
+    public boolean registerSurvey(SurveyRequestDto requestDto, MultipartFile[] files) throws IOException {
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         Optional<Member> optional = memberRepository.findByMemberId(user.getName());
+
+        String baseDir = "C:\\Users\\82103\\IdeaProjects\\sharedsurvey\\src\\main\\resources\\static\\uploadFiles";
+        String filePath = "";
+
+        int i = 0;
+
         if(optional.isPresent()){
             requestDto.setWriterId(optional.get().getId());
             Survey survey = new Survey(requestDto);
@@ -33,12 +42,18 @@ public class SurveyService {
             List<QuestionRequestDto> questions = requestDto.getQuestions();
             for (QuestionRequestDto s : questions) {
                 s.setSurveyId(survey.getId());
-                Question question = new Question(s);
-                questionRepository.save(question);
+                Question question = questionRepository.save(new Question(s));
+                if(s.isExistFile()){
+                    filePath = baseDir + "\\" + files[i].getOriginalFilename();
+                    files[i].transferTo(new File(filePath));
+
+                    question.setFilename(files[i++].getOriginalFilename());
+                    questionRepository.save(question);
+                }
             }
-            return survey;
+            return true;
         }
-        return null;
+        return false;
     }
 
 

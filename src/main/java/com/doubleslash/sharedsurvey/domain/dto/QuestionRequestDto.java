@@ -14,4 +14,8 @@ public class QuestionRequestDto {
     private String questionText;
 
     private boolean required;
+
+    private boolean existFile;
+
+    private String filename;
 }
