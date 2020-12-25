@@ -39,17 +39,20 @@ public class MemberController {
     }
 
     @PostMapping("/idCheck")
-    public boolean idCheck(@RequestBody MemberRequestDto requestDto){
-        return !memberRepository.findByMemberId(requestDto.getMemberId()).isPresent();
+    public Map<String, Boolean> idCheck(@RequestBody MemberRequestDto requestDto){
+        Map<String, Boolean> map = new HashMap<>();
+        map.put("success", !memberRepository.findByMemberId(requestDto.getMemberId()).isPresent());
+        return map;
     }
 
     @PostMapping("/join")
-    public Long createMember(@RequestBody MemberRequestDto requestDto){
+    public Map<String, Boolean> createMember(@RequestBody MemberRequestDto requestDto){
+        Map<String, Boolean> map = new HashMap<>();
         if (memberRepository.findByMemberId(requestDto.getMemberId()).isPresent()) {
-            return null;
+            map.put("success", false);
         } else {
             requestDto.setPassword(passwordEncoder.encode(requestDto.getPassword()));
-            return memberRepository.save(Member.builder()
+            memberRepository.save(Member.builder()
                     .age(requestDto.getAge())
                     .gender(requestDto.isGender())
                     .name(requestDto.getName())
@@ -58,7 +61,9 @@ public class MemberController {
                     .password(requestDto.getPassword())
                     .point(30)
                     .build()).getId();
+            map.put("success", true);
         }
+        return map;
     }
 
     // 로그인

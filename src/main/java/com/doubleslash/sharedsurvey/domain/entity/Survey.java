@@ -36,7 +36,7 @@ public class Survey extends Timestamped {
 
     private int point;
 
-    private String picture;
+    private String picture = "";
 
     private int responseCount;
 
@@ -55,9 +55,8 @@ public class Survey extends Timestamped {
 
     }
 
-    public boolean updateSurvey(SurveyUpdateDto updateDto){
-        this.state = updateDto.isState();
-        return true;
+    public void updateSurvey(boolean state){
+        this.state = state;
     }
 
     public boolean updateCount(){

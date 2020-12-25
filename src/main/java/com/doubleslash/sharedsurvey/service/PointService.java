@@ -25,4 +25,11 @@ public class PointService {
         return member.getPoint();
     }
 
+    public void usePoint(String memberId, int point){
+        Member member = memberRepository.findByMemberId(memberId).get();
+        member.usePoint(point);
+
+        memberRepository.save(member);
+    }
+
 }

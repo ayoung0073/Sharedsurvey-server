@@ -41,10 +41,13 @@ public class SurveyController {
 
 
     @PostMapping("/survey") // 설문조사 등록
-    public boolean createSurvey(@RequestPart(value = "image",required = false) MultipartFile[] files,
+    public Map<String, Boolean> createSurvey(@RequestPart(value = "image",required = false) MultipartFile[] files,
                                 @RequestPart(value = "requestDto") SurveyRequestDto requestDto) throws IOException {
-        return surveyService.registerSurvey(requestDto, files);
+        Map<String, Boolean> map = new HashMap<>();
 
+        map.put("success", surveyService.registerSurvey(requestDto, files));
+
+        return map;
     }
 
     // 설문조사 응답하기
@@ -60,21 +63,31 @@ public class SurveyController {
         return surveyRepository.findAllByOrderByEndDateAndResponseCount();
     }
 
-    @GetMapping("/survey/{id}") // 해당 설문조사의 질문들 목록
-    public Map<String, Object> getSurvey(@PathVariable Long id){
-        return surveyService.getSurveyAndQuestions(id);
+    @GetMapping("/survey/{surveyId}") // 해당 설문조사의 질문들 목록
+    public Map<String, Object> getSurvey(@PathVariable Long surveyId){
+        return surveyService.getSurveyAndQuestions(surveyId);
     }
 
-    @PutMapping("/survey/{id}") // 설문조사 생성자가 설문조사 종료할 때
-    public boolean updateSurvey(@PathVariable Long id, @RequestBody SurveyUpdateDto updateDto){
-        if(surveyService.updateSurvey(id,updateDto)) return true;
-        else return false;
+    @PutMapping("/survey/{surveyId}") // 설문조사 생성자가 설문조사 종료할 때
+    public Map<String, Boolean> updateSurvey(@PathVariable Long surveyId, @RequestBody SurveyUpdateDto updateDto){
+        Map<String, Boolean> map = new HashMap<>();
+        if(surveyService.updateSurvey(surveyId,updateDto.isState())) map.put("success", true);
+        else map.put("success", false);
+
+        return map;
     }
 
 
-    @GetMapping("/survey/answer/{id}") // surveyId // 설문조사 응답 보기
-    public Map<Object, Object> getAnswer(@PathVariable Long id){
-        return surveyService.getAnswers(id);
+    @GetMapping("/survey/answer/{surveyId}") // surveyId // 설문조사 응답 보기
+    public Map<Object, Object> getAnswer(@PathVariable Long surveyId){
+
+        Authentication user = SecurityContextHolder.getContext().getAuthentication();
+
+        Survey survey = surveyRepository.findById(surveyId).get();
+        if(memberRepository.findById(survey.getWriter()).get().getMemberId().equals(user.getName()))
+            pointService.usePoint(user.getName(), surveyRepository.findById(surveyId).get().getPoint());
+
+        return surveyService.getAnswers(surveyId);
     }
 
     @PostMapping("/survey/answer/{surveyId}") // answer 등록

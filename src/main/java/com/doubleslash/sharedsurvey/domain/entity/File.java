@@ -18,7 +18,7 @@ public class File {
     @Id
     private Long questionId;
 
-    private String filename;
+    private String filename="";
 
     private String contentType;
 

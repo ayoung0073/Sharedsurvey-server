@@ -1,5 +1,6 @@
 package com.doubleslash.sharedsurvey.service;
 
+import com.doubleslash.sharedsurvey.SharedsurveyApplication;
 import com.doubleslash.sharedsurvey.domain.dto.*;
 import com.doubleslash.sharedsurvey.domain.entity.*;
 import com.doubleslash.sharedsurvey.repository.*;
@@ -9,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +31,8 @@ public class SurveyService {
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         Optional<Member> optional = memberRepository.findByMemberId(user.getName());
 
-        String baseDir = "C:\\Users\\82103\\IdeaProjects\\sharedsurvey\\src\\main\\resources\\static\\uploadFiles";
+
+        String baseDir = SharedsurveyApplication.class.getResource("").getPath() + "..\\..\\..\\..\\..\\..\\resources\\main\\static\\file";
         String filePath = "";
 
         int i = 0;
@@ -43,12 +46,22 @@ public class SurveyService {
             for (QuestionRequestDto s : questions) {
                 s.setSurveyId(survey.getId());
                 Question question = questionRepository.save(new Question(s));
-                if(s.isExistFile()){
-                    filePath = baseDir + "\\" + files[i].getOriginalFilename();
-                    files[i].transferTo(new File(filePath));
-
-                    question.setFilename(files[i++].getOriginalFilename());
-                    questionRepository.save(question);
+                String filename = "";
+                if(s.isExistFile()){ // .png, .jpg, .jpeg 만 가능
+                    filename = files[i].getOriginalFilename();
+                    assert filename != null;
+                    if(filename.split("\\.")[1].equalsIgnoreCase("png")) {
+                        filePath = baseDir + "\\" + question.getId() + ".png";//files[i].getOriginalFilename();
+                        question.setFilename(question.getId() + ".png");
+                        files[i++].transferTo(new File(filePath));
+                        questionRepository.save(question);
+                    }
+                    else if(filename.split("\\.")[1].equalsIgnoreCase("jpg") || (filename.split("\\.")[1].equalsIgnoreCase("jpeg"))){
+                        filePath = baseDir + "\\" + question.getId() + ".jpg";//files[i].getOriginalFilename();
+                        question.setFilename(question.getId() + ".jpg");
+                        files[i++].transferTo(new File(filePath));
+                        questionRepository.save(question);
+                    }
                 }
             }
             return true;
@@ -58,12 +71,12 @@ public class SurveyService {
 
 
     @Transactional
-    public boolean updateSurvey(Long id, SurveyUpdateDto updateDto){
+    public boolean updateSurvey(Long id, boolean state){
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
 
         Survey survey = surveyRepository.findById(id).get();
         if(survey.getWriter() == memberRepository.findByMemberId(user.getName()).get().getId()) {
-            survey.updateSurvey(updateDto);
+            survey.updateSurvey(state);
             return true;
         }
         else return false;
@@ -78,7 +91,7 @@ public class SurveyService {
 
         requestDto.setWriterId(memberId);
         for (QuestionAnswerDto dto : requestDto.getAnswer()) {
-            Answer answer = new Answer(requestDto.getWriterId(), dto.getQuestionId(), dto.getAnswerText());
+            Answer answer = new Answer(memberId, dto.getQuestionId(), dto.getAnswerText());
             answerRepository.save(answer);
         }
 
