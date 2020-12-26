@@ -1,4 +1,4 @@
-package com.doubleslash.sharedsurvey;
+package com.doubleslash.sharedsurvey.controller;
 
 import com.doubleslash.sharedsurvey.controller.SurveyController;
 import org.junit.Test;
@@ -16,13 +16,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = SurveyController.class)
-public class SurveyControllerTest2 {
+public class SurveyControllerTest {
+
     @Autowired
     private MockMvc mvc;
 
     @Test
     public void test() throws Exception{
-        mvc.perform(get("/surveys"))
-                .andExpect(status().isOk());
+        String test = "{\"success\":false}";
+        mvc.perform(get("/survey/15"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(test));
     }
 }

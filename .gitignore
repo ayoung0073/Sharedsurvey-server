@@ -38,7 +38,5 @@ out/
 
 application.properties
 
-*Config.java
-
-.jpg
-.png
+**/SecurityConfig.java
+**/file/

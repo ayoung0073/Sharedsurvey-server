@@ -101,7 +101,7 @@ public class MemberController {
         else {
 //            Member user2 = (Member) user.getPrincipal();
             //Member user2 = (Member) user.getPrincipal();
-            return user.getAuthorities() + " / " + user.getName() + " / " + user.getPassword();
+            return user.getAuthorities() + " / " + user.getMemberId() + " / " + user.getPassword();
         }
     }
 

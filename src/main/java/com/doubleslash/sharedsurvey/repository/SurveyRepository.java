@@ -17,4 +17,7 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
     @Query(value = "select * from survey where date(end_date) > date(now()) order by end_date, response_count;", nativeQuery = true)
     List<Survey> findAllByOrderByEndDateAndResponseCountEndDateAfter();
 
+    List<Survey> findAllByEndDateAfterAndNameContainingOrderByEndDate(Date date,String searchVal);
+
+    List<Survey> findAllByEndDateBeforeAndNameContainingOrderByEndDate(Date date,String searchVal);
 }
