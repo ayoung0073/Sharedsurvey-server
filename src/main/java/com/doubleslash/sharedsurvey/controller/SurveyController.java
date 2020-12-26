@@ -84,7 +84,6 @@ public class SurveyController {
 
     @GetMapping("/survey/answer/{surveyId}") // surveyId // 설문조사 응답 보기
     public Map<Object, Object> getAnswer(@PathVariable Long surveyId, @AuthenticationPrincipal Member member){
-
         // Authentication user = SecurityContextHolder.getContext().getAuthentication();
         Map<Object, Object> map = new HashMap<>();
         Survey survey = surveyRepository.findById(surveyId).get();
@@ -127,11 +126,13 @@ public class SurveyController {
         return answerRepository.findAll();
     }
 
+    @GetMapping("/survey")
+    public List<Survey> getSearch(@RequestParam("search") String searchVal){
+        return surveyRepository.findAllByEndDateAfterAndNameContainingOrderByEndDate(new Date(), searchVal);
+    }
 
-
-    @GetMapping("/search/end")
-    public void getSearch(@RequestParam("search") String searchVal){
-
-
+    @GetMapping("/survey/end") // 종료된 설문조사 search
+    public List<Survey> getSearchEnd(@RequestParam("search") String searchVal){
+        return surveyRepository.findAllByEndDateBeforeAndNameContainingOrderByEndDate(new Date(), searchVal);
     }
 }
