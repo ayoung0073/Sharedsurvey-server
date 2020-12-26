@@ -1,6 +1,7 @@
 package com.doubleslash.sharedsurvey.controller;
 
 import com.doubleslash.sharedsurvey.config.security.JwtTokenProvider;
+import com.doubleslash.sharedsurvey.config.security.user.CurrentUser;
 import com.doubleslash.sharedsurvey.config.security.user.CustomUserDetailService;
 import com.doubleslash.sharedsurvey.config.security.user.SecurityMember;
 import com.doubleslash.sharedsurvey.domain.dto.LoginRequestDto;
@@ -10,6 +11,7 @@ import com.doubleslash.sharedsurvey.repository.MemberRepository;
 import com.doubleslash.sharedsurvey.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -89,13 +91,17 @@ public class MemberController {
     }
 
     @GetMapping("/checkJWT")
-    public String list(){
+    public String list(@AuthenticationPrincipal Member user){
         //권한체크
-        Authentication user = SecurityContextHolder.getContext().getAuthentication();
-        if(user.getPrincipal().equals("anonymousUser")) return "유효하지 않은 토큰";
+        //Authentication user = SecurityContextHolder.getContext().getAuthentication();
+        //user.
+        //if(user.getPrincipal().equals("anonymousUser")) return "유효하지 않은 토큰";
+        if(user == null) return "유효하지 않은 토큰";
+
         else {
-            Member user2 = (Member) user.getPrincipal();
-            return user2.getAuthorities() + " / " + user.getName() + " / " + user2.getPassword();
+//            Member user2 = (Member) user.getPrincipal();
+            //Member user2 = (Member) user.getPrincipal();
+            return user.getAuthorities() + " / " + user.getName() + " / " + user.getPassword();
         }
     }
 
