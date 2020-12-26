@@ -38,6 +38,7 @@ out/
 
 application.properties
 
-*Config
+*Config.java
 
-file/
+.jpg
+.png
