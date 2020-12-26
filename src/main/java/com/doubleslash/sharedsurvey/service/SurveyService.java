@@ -27,55 +27,47 @@ public class SurveyService {
     private final SurveyAnswerRepository surveyAnswerRepository;
 
     @Transactional
-    public boolean registerSurvey(SurveyRequestDto requestDto, MultipartFile[] files) throws IOException {
-        Authentication user = SecurityContextHolder.getContext().getAuthentication();
-        Optional<Member> optional = memberRepository.findByMemberId(user.getName());
-
+    public boolean registerSurvey(SurveyRequestDto requestDto, MultipartFile[] files, Member member) throws IOException {
 
         String baseDir = SharedsurveyApplication.class.getResource("").getPath() + "..\\..\\..\\..\\..\\..\\resources\\main\\static\\file";
         String filePath = "";
 
         int i = 0;
 
-        if(optional.isPresent()){
-            requestDto.setWriterId(optional.get().getId());
-            Survey survey = new Survey(requestDto);
-            surveyRepository.save(survey);
-            surveyWriterRepository.save(new SurveyWriter(survey.getId(),optional.get().getId()));
-            List<QuestionRequestDto> questions = requestDto.getQuestions();
-            for (QuestionRequestDto s : questions) {
-                s.setSurveyId(survey.getId());
-                Question question = questionRepository.save(new Question(s));
-                String filename = "";
-                if(s.isExistFile()){ // .png, .jpg, .jpeg 만 가능
-                    filename = files[i].getOriginalFilename();
-                    assert filename != null;
-                    if(filename.split("\\.")[1].equalsIgnoreCase("png")) {
-                        filePath = baseDir + "\\" + question.getId() + ".png";//files[i].getOriginalFilename();
-                        question.setFilename(question.getId() + ".png");
-                        files[i++].transferTo(new File(filePath));
-                        questionRepository.save(question);
-                    }
-                    else if(filename.split("\\.")[1].equalsIgnoreCase("jpg") || (filename.split("\\.")[1].equalsIgnoreCase("jpeg"))){
-                        filePath = baseDir + "\\" + question.getId() + ".jpg";//files[i].getOriginalFilename();
-                        question.setFilename(question.getId() + ".jpg");
-                        files[i++].transferTo(new File(filePath));
-                        questionRepository.save(question);
-                    }
+        requestDto.setWriterId(member.getId());
+        Survey survey = new Survey(requestDto);
+        surveyRepository.save(survey);
+        surveyWriterRepository.save(new SurveyWriter(survey.getId(),member.getId()));
+        List<QuestionRequestDto> questions = requestDto.getQuestions();
+        for (QuestionRequestDto s : questions) {
+            s.setSurveyId(survey.getId());
+            Question question = questionRepository.save(new Question(s));
+            String filename = "";
+            if(s.isExistFile()){ // .png, .jpg, .jpeg 만 가능
+                filename = files[i].getOriginalFilename();
+                assert filename != null;
+                if(filename.split("\\.")[1].equalsIgnoreCase("png")) {
+                    filePath = baseDir + "\\" + question.getId() + ".png";//files[i].getOriginalFilename();
+                    question.setFilename(question.getId() + ".png");
+                    files[i++].transferTo(new File(filePath));
+                    questionRepository.save(question);
+                }
+                else if(filename.split("\\.")[1].equalsIgnoreCase("jpg") || (filename.split("\\.")[1].equalsIgnoreCase("jpeg"))){
+                    filePath = baseDir + "\\" + question.getId() + ".jpg";//files[i].getOriginalFilename();
+                    question.setFilename(question.getId() + ".jpg");
+                    files[i++].transferTo(new File(filePath));
+                    questionRepository.save(question);
                 }
             }
-            return true;
         }
-        return false;
+        return true;
     }
 
 
     @Transactional
-    public boolean updateSurvey(Long id, boolean state){
-        Authentication user = SecurityContextHolder.getContext().getAuthentication();
-
+    public boolean updateSurvey(Long id, boolean state, String memberId){
         Survey survey = surveyRepository.findById(id).get();
-        if(survey.getWriter() == memberRepository.findByMemberId(user.getName()).get().getId()) {
+        if(survey.getWriter() == memberRepository.findByMemberId(memberId).get().getId()) {
             survey.updateSurvey(state);
             return true;
         }
@@ -123,6 +115,7 @@ public class SurveyService {
             questionId = questions.get(i).getId();
             map.put(questionId, answerRepository.findAllByQuestionId(questionId));
         }
+        map.put("success", true);
         return map;
     }
 
