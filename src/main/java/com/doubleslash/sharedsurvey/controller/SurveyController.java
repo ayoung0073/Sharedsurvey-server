@@ -1,6 +1,7 @@
 package com.doubleslash.sharedsurvey.controller;
 
 import com.doubleslash.sharedsurvey.domain.dto.AnswerRequestDto;
+import com.doubleslash.sharedsurvey.domain.dto.SuccessDto;
 import com.doubleslash.sharedsurvey.domain.dto.SurveyRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.SurveyUpdateDto;
 import com.doubleslash.sharedsurvey.domain.entity.Answer;
@@ -74,12 +75,12 @@ public class SurveyController {
     }
 
     @DeleteMapping("/survey/{surveyId}")
-    public String deleteSurvey(@PathVariable Long surveyId, @AuthenticationPrincipal Member member){
+    public SuccessDto deleteSurvey(@PathVariable Long surveyId, @AuthenticationPrincipal Member member){
         if(member != null) {
             surveyRepository.deleteById(surveyId);
-            return "{\"success\":true}";
+            return new SuccessDto(true);
         }
-        return "{\"success\":false}";
+        return new SuccessDto(false);
     }
 
     @GetMapping("/survey/answer/{surveyId}") // surveyId // 설문조사 응답 보기

@@ -38,5 +38,6 @@ out/
 
 application.properties
 
-**/SecurityConfig.java
-**/file/
+SecurityConfig.java
+file\
+file\
