@@ -1,21 +1,14 @@
 package com.doubleslash.sharedsurvey.controller;
 
 import com.doubleslash.sharedsurvey.config.security.JwtTokenProvider;
-import com.doubleslash.sharedsurvey.config.security.user.CurrentUser;
-import com.doubleslash.sharedsurvey.config.security.user.CustomUserDetailService;
-import com.doubleslash.sharedsurvey.config.security.user.SecurityMember;
 import com.doubleslash.sharedsurvey.domain.dto.LoginRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.MemberRequestDto;
 import com.doubleslash.sharedsurvey.domain.entity.Member;
 import com.doubleslash.sharedsurvey.repository.MemberRepository;
 import com.doubleslash.sharedsurvey.service.MemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,7 +55,7 @@ public class MemberController {
                     .memberId(requestDto.getMemberId())
                     .password(requestDto.getPassword())
                     .point(30)
-                    .build()).getId();
+                    .build());
             map.put("success", true);
         }
         return map;
@@ -101,6 +94,7 @@ public class MemberController {
         else {
 //            Member user2 = (Member) user.getPrincipal();
             //Member user2 = (Member) user.getPrincipal();
+            System.out.println(user.getId());
             return user.getAuthorities() + " / " + user.getMemberId() + " / " + user.getPassword();
         }
     }

@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.sql.Timestamp;
 import java.util.Date;
 
 @Getter
@@ -36,9 +35,12 @@ public class Survey extends Timestamped {
 
     private int point;
 
-    private String picture = "";
+    private String filename = "";
 
     private int responseCount;
+
+    private boolean existFile = false;
+
 
     public Survey(SurveyRequestDto requestDto){
         this.writer = requestDto.getWriterId();
@@ -48,19 +50,28 @@ public class Survey extends Timestamped {
         this.endDate = requestDto.getEndDate();
         this.state = true;
         this.point = requestDto.getPoint();
-        this.picture = requestDto.getPicture();
+        this.filename = requestDto.getFilename();
+        this.existFile = requestDto.isExistFile();
     }
 
     public Survey() {
 
     }
 
-    public void updateSurvey(boolean state){
-        this.state = state;
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
-    public boolean updateCount(){
+    public void updateSurvey(SurveyUpdateDto updateDto) {
+        this.name = updateDto.getName();
+        this.description = updateDto.getDescription();
+        this.point = updateDto.getPoint();
+        this.state = updateDto.isState();
+        this.startDate = updateDto.getStartDate();
+        this.endDate = updateDto.getEndDate();
+    }
+
+    public void updateCount(){
         this.responseCount ++;
-        return true;
     }
 }

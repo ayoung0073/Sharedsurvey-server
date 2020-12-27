@@ -24,7 +24,9 @@ public class SurveyRequestDto {
 
     private int point;
 
-    private String picture;
+    private boolean existFile;
+
+    private String filename;
 
     List<QuestionRequestDto> questions;
 }

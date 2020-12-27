@@ -37,7 +37,7 @@ public class SurveyResponseDto {
         this.startDate = survey.getStartDate();
         this.writer = survey.getWriter();
         this.name = survey.getName();
-        this.picture = survey.getPicture();
+        this.picture = survey.getFilename();
         this.state = survey.isState();
         this.point = survey.getPoint();
     }
