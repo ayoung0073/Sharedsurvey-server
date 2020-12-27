@@ -9,7 +9,6 @@ import com.doubleslash.sharedsurvey.domain.entity.Member;
 import com.doubleslash.sharedsurvey.domain.entity.Survey;
 import com.doubleslash.sharedsurvey.repository.AnswerRepository;
 import com.doubleslash.sharedsurvey.repository.MemberRepository;
-import com.doubleslash.sharedsurvey.repository.SurveyAnswerRepository;
 import com.doubleslash.sharedsurvey.repository.SurveyRepository;
 import com.doubleslash.sharedsurvey.service.PointService;
 import com.doubleslash.sharedsurvey.service.SurveyService;
@@ -40,8 +39,9 @@ public class SurveyController {
         Map<String, Boolean> map = new HashMap<>();
         if(member != null)
             map.put("success", surveyService.registerSurvey(requestDto, files, member));
-        else
+        else {
             map.put("success", false);
+        }
         return map;
     }
 
@@ -59,15 +59,15 @@ public class SurveyController {
     }
 
     @GetMapping("/survey/{surveyId}") // 해당 설문조사의 질문들 목록
-    public Map<String, Object> getSurvey(@PathVariable Long surveyId){
-        return surveyService.getSurveyAndQuestions(surveyId);
+    public Map<String, Object> getSurvey(@PathVariable Long surveyId, @AuthenticationPrincipal Member member){
+        return surveyService.getSurveyAndQuestions(surveyId, member.getId());
     }
 
     @PutMapping("/survey/{surveyId}") // 설문조사 생성자가 설문조사 종료할 때
     public Map<String, Boolean> updateSurvey(@PathVariable Long surveyId, @RequestBody SurveyUpdateDto updateDto, @AuthenticationPrincipal Member member){
         Map<String, Boolean> map = new HashMap<>();
         if(member != null)
-            if(surveyService.updateSurvey(surveyId,updateDto.isState(), member.getMemberId())) map.put("success", true);
+            if(surveyService.updateSurvey(surveyId, updateDto)) map.put("success", true);
             else map.put("success", false);
         else map.put("success", false);
 
@@ -87,10 +87,11 @@ public class SurveyController {
     public Map<Object, Object> getAnswer(@PathVariable Long surveyId, @AuthenticationPrincipal Member member){
         // Authentication user = SecurityContextHolder.getContext().getAuthentication();
         Map<Object, Object> map = new HashMap<>();
-        Survey survey = surveyRepository.findById(surveyId).get();
+        Survey survey = surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다."));
+
         if(member != null)
-            if(memberRepository.findById(survey.getWriter()).get().getMemberId().equals(member.getMemberId())) {
-                pointService.usePoint(member.getMemberId(), surveyRepository.findById(surveyId).get().getPoint());
+            if(memberRepository.findById(survey.getWriter()).orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다.")).getMemberId().equals(member.getMemberId())) {
+                pointService.usePoint(member, surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다.")).getPoint());
                 return surveyService.getAnswers(surveyId);
             }
             else{
@@ -103,8 +104,8 @@ public class SurveyController {
         return map;
     }
 
-    @PostMapping("/survey/answer/{surveyId}") // answer 등록
-    public Map<String, Object> createAnswer(@PathVariable Long surveyId, @RequestBody AnswerRequestDto requestDto, @AuthenticationPrincipal Member member) {
+    @PostMapping("/survey/{surveyId}") // answer 등록
+    public Map<String, Object> createAnswer(@PathVariable Long surveyId, @RequestBody AnswerRequestDto requestDto, @AuthenticationPrincipal Member member) throws Exception {
         //Authentication user = SecurityContextHolder.getContext().getAuthentication();
         Map<String, Object> map = new HashMap<>();
         if(member != null) {

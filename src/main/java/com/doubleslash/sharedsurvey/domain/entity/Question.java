@@ -2,6 +2,7 @@ package com.doubleslash.sharedsurvey.domain.entity;
 
 
 import com.doubleslash.sharedsurvey.domain.dto.QuestionRequestDto;
+import com.doubleslash.sharedsurvey.domain.dto.QuestionUpdateDto;
 import lombok.Getter;
 
 import javax.persistence.Entity;
@@ -44,4 +45,11 @@ public class Question {
     public void setFilename(String filename) {
         this.filename = filename;
     }
+
+    public void updateQuestion(QuestionUpdateDto updateDto){
+        this.questionCategoryId = updateDto.getQuestionCategoryId();
+        this.questionText = updateDto.getQuestionText();
+        this.required = updateDto.isRequired();
+    }
+
 }

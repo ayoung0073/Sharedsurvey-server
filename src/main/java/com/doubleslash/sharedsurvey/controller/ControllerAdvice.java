@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ControllerAdvice {
     @ExceptionHandler(value = Exception.class)
-    public ExceptionDto handleAppException(Exception e) {
+    public ExceptionDto handleException(Exception e) {
+        System.out.println(e.getLocalizedMessage());
         return new ExceptionDto(e.getMessage());
     }
 }
