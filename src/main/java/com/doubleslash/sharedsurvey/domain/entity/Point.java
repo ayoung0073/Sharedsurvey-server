@@ -3,10 +3,7 @@ package com.doubleslash.sharedsurvey.domain.entity;
 import com.doubleslash.sharedsurvey.domain.Timestamped;
 import lombok.Getter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Getter
 @Entity
@@ -19,16 +16,26 @@ public class Point extends Timestamped {
 
     private Long memberId;
 
-    private boolean type;
+    private boolean type; // true이면 포인트 get, false이면 포인트 use
 
     private Long surveyId;
 
-    public Point(Long memberId, boolean type, Long surveyId){
+    private int pointVal;
+
+    @Transient
+    private String surveyName;
+
+
+    public Point(Long memberId, int pointVal, boolean type, Long surveyId){
         this.memberId = memberId;
         this.type = type;
         this.surveyId = surveyId;
+        this.pointVal = pointVal;
     }
 
     public Point(){}
 
+    public void setSurveyName(String surveyName) {
+        this.surveyName = surveyName;
+    }
 }

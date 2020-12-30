@@ -19,12 +19,12 @@ public class PointService {
     private final SurveyRepository surveyRepository;
     private final MemberRepository memberRepository;
 
-    public int getPoint(Long surveyId, Member member)  {
+    public int getPoint(Long surveyId, int point, Member member)  {
         Optional<Survey> survey = surveyRepository.findById(surveyId);
         member.getPoint(survey.orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다.")).getPoint());
         memberRepository.save(member);
 
-        pointRepository.save(new Point(member.getId(), true, surveyId));
+        pointRepository.save(new Point(member.getId(), point,true, surveyId));
         return member.getPoint();
 
     }
