@@ -6,9 +6,11 @@ import com.doubleslash.sharedsurvey.domain.dto.SurveyRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.SurveyUpdateDto;
 import com.doubleslash.sharedsurvey.domain.entity.Answer;
 import com.doubleslash.sharedsurvey.domain.entity.Member;
+import com.doubleslash.sharedsurvey.domain.entity.Point;
 import com.doubleslash.sharedsurvey.domain.entity.Survey;
 import com.doubleslash.sharedsurvey.repository.AnswerRepository;
 import com.doubleslash.sharedsurvey.repository.MemberRepository;
+import com.doubleslash.sharedsurvey.repository.PointRepository;
 import com.doubleslash.sharedsurvey.repository.SurveyRepository;
 import com.doubleslash.sharedsurvey.service.PointService;
 import com.doubleslash.sharedsurvey.service.SurveyService;
@@ -30,14 +32,15 @@ public class SurveyController {
     private final MemberRepository memberRepository;
     private final SurveyRepository surveyRepository;
     private final AnswerRepository answerRepository;
+    private final PointRepository pointRepository;
 
 
     @PostMapping("/survey") // 설문조사 등록
-    public Map<String, Boolean> createSurvey(@RequestPart(value = "image",required = false) MultipartFile[] files,
-                                @RequestPart(value = "requestDto") SurveyRequestDto requestDto,
+    public Map<String, Boolean> createSurvey(@RequestPart(value = "image", required = false) MultipartFile[] files,
+                                             @RequestPart(value = "requestDto") SurveyRequestDto requestDto,
                                              @AuthenticationPrincipal Member member) throws IOException {
         Map<String, Boolean> map = new HashMap<>();
-        if(member != null)
+        if (member != null)
             map.put("success", surveyService.registerSurvey(requestDto, files, member));
         else {
             map.put("success", false);
@@ -49,7 +52,7 @@ public class SurveyController {
     // 설문조사 마감 임박 순
     // ( 종료 날짜가 같을 시 응답자 수 가 적은 설문조사 부터 정렬)
     @GetMapping("/surveys") // 모든 설문조사 나열
-    public List<Survey> getSurveys(){
+    public List<Survey> getSurveys() {
         return surveyRepository.findAllByOrderByEndDateAndResponseCountEndDateAfter();
     }
 
@@ -59,15 +62,15 @@ public class SurveyController {
     }
 
     @GetMapping("/survey/{surveyId}") // 해당 설문조사의 질문들 목록
-    public Map<String, Object> getSurvey(@PathVariable Long surveyId, @AuthenticationPrincipal Member member){
+    public Map<String, Object> getSurvey(@PathVariable Long surveyId, @AuthenticationPrincipal Member member) {
         return surveyService.getSurveyAndQuestions(surveyId, member.getId());
     }
 
     @PutMapping("/survey/{surveyId}") // 설문조사 생성자가 설문조사 종료할 때
-    public Map<String, Boolean> updateSurvey(@PathVariable Long surveyId, @RequestBody SurveyUpdateDto updateDto, @AuthenticationPrincipal Member member){
+    public Map<String, Boolean> updateSurvey(@PathVariable Long surveyId, @RequestBody SurveyUpdateDto updateDto, @AuthenticationPrincipal Member member) {
         Map<String, Boolean> map = new HashMap<>();
-        if(member != null)
-            if(surveyService.updateSurvey(surveyId, updateDto)) map.put("success", true);
+        if (member != null)
+            if (surveyService.updateSurvey(surveyId, updateDto)) map.put("success", true);
             else map.put("success", false);
         else map.put("success", false);
 
@@ -75,66 +78,103 @@ public class SurveyController {
     }
 
     @DeleteMapping("/survey/{surveyId}")
-    public SuccessDto deleteSurvey(@PathVariable Long surveyId, @AuthenticationPrincipal Member member){
-        if(member != null) {
+    public SuccessDto deleteSurvey(@PathVariable Long surveyId, @AuthenticationPrincipal Member member) {
+        if (member != null) {
             surveyRepository.deleteById(surveyId);
             return new SuccessDto(true);
         }
         return new SuccessDto(false);
     }
 
-    @GetMapping("/survey/answer/{surveyId}") // surveyId // 설문조사 응답 보기
-    public Map<Object, Object> getAnswer(@PathVariable Long surveyId, @AuthenticationPrincipal Member member){
-        // Authentication user = SecurityContextHolder.getContext().getAuthentication();
-        Map<Object, Object> map = new HashMap<>();
-        Survey survey = surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다."));
-
-        if(member != null)
-            if(memberRepository.findById(survey.getWriter()).orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다.")).getMemberId().equals(member.getMemberId())) {
-                pointService.usePoint(member, surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다.")).getPoint());
-                return surveyService.getAnswers(surveyId);
-            }
-            else{
-                return surveyService.getAnswers(surveyId);
-            }
-        else {
+    @PostMapping("/survey/{surveyId}") // answer 등록
+    public Map<String, Object> createAnswer(@PathVariable Long surveyId, @RequestBody AnswerRequestDto requestDto, @AuthenticationPrincipal Member member){
+        //Authentication user = SecurityContextHolder.getContext().getAuthentication();
+        Map<String, Object> map = new HashMap<>();
+        if (member != null) {
+            //Optional<Member> optional = memberRepository.findByMemberId(member.getMemberId());
+            //if (optional.isPresent()) {
+            Long memberId = member.getId();
+            int point = surveyService.registerAnswer(surveyId, requestDto, memberId);
+            map.put("point", pointService.getPoint(surveyId, point,member));
+            map.put("success", true);
+            //}
+        } else {
             map.put("success", false);
-            map.put("response", "유효하지 않은 토큰");
         }
         return map;
     }
 
-    @PostMapping("/survey/{surveyId}") // answer 등록
-    public Map<String, Object> createAnswer(@PathVariable Long surveyId, @RequestBody AnswerRequestDto requestDto, @AuthenticationPrincipal Member member) throws Exception {
-        //Authentication user = SecurityContextHolder.getContext().getAuthentication();
-        Map<String, Object> map = new HashMap<>();
-        if(member != null) {
-            //Optional<Member> optional = memberRepository.findByMemberId(member.getMemberId());
-            //if (optional.isPresent()) {
-            Long memberId = member.getId();
-            surveyService.registerAnswer(surveyId, requestDto, memberId);
-            map.put("point", pointService.getPoint(surveyId, member));
+    @GetMapping("/survey/{surveyId}/answer") // surveyId // 설문조사 응답 보기
+    public Map<Object, Object> getAnswer(@PathVariable Long surveyId, @AuthenticationPrincipal Member member) {
+        // Authentication user = SecurityContextHolder.getContext().getAuthentication();
+        Map<Object, Object> map = new HashMap<>();
+        Survey survey = surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다."));
+
+        if (member != null) {
             map.put("success", true);
-            //}
+            if (memberRepository.findById(survey.getWriter()).orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다.")).getMemberId().equals(member.getMemberId())) {
+                pointService.usePoint(member, surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다.")).getPoint());
+            }
+            map.put("answers", surveyService.getAnswers(surveyId));
         }
-        else{
+        else {
             map.put("success", false);
+            map.put("message", "유효하지 않은 토큰");
         }
         return map;
     }
 
     @GetMapping("/survey/answers")
-    public List<Answer> getAnswers(){
+    public List<Answer> getAnswers() {
         return answerRepository.findAll();
     }
 
     @GetMapping("/survey")
-    public List<Survey> getSearch(@RequestParam("search") String searchVal){
+    public List<Survey> getSearch(@RequestParam("search") String searchVal) {
         return surveyRepository.findAllByEndDateAfterAndNameContainingOrderByEndDate(new Date(), searchVal);
     }
 
     @GetMapping("/survey/end") // 종료된 설문조사 search
-    public List<Survey> getSearchEnd(@RequestParam("search") String searchVal){
+    public List<Survey> getSearchEnd(@RequestParam("search") String searchVal) {
         return surveyRepository.findAllByEndDateBeforeAndNameContainingOrderByEndDate(new Date(), searchVal);
     }
+
+    @GetMapping("/survey/{surveyId}/me") // surveyId // 설문조사 응답 보기
+    public Map<String, Object> getAnswerByMember(@PathVariable Long surveyId, @AuthenticationPrincipal Member member) {
+        Map<String, Object> map = new HashMap<>();
+        if (member != null) {
+            map.put("success",true);
+            map.put("response",surveyService.getQuestionAndAnswerBymemberId(surveyId, member.getId()));
+        }
+        else map.put("success", false);
+
+        return map;
+    }
+
+    @GetMapping("/{memberId}")
+    public Map<String, Object> myPage(@PathVariable Long memberId, @AuthenticationPrincipal Member member){
+        Map<String, Object> map = new HashMap<>();
+        if(memberId.equals(member.getId())){
+            map.put("success", true);
+            // 내가 올렸던 종료된 설문조사
+            map.put("end", surveyRepository.findAllByEndDateBeforeAndWriterOrderByEndDate(new Date(), memberId));
+
+            // 내가 올렸던 진행 중인 설문조사
+            map.put("progress", surveyRepository.findAllByEndDateAfterAndWriterOrderByEndDate(new Date(), memberId));
+
+            // 포인트 내역
+
+            List<Point> pointList = pointRepository.findAllByMemberId(memberId);
+            for(Point p : pointList){
+                p.setSurveyName(surveyRepository.findById(p.getSurveyId())
+                        .orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다.")).getName());
+            }
+            map.put("point", pointRepository.findAllByMemberId(memberId));
+        }
+        else map.put("success", false);
+
+        return map;
+    }
+
 }
+

@@ -1,16 +1,20 @@
 package com.doubleslash.sharedsurvey.domain.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Entity
-public class Answer {
-    // answer - id, (surveyId, questionId), writer, answer
+public class QuestionChoice {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,16 +23,14 @@ public class Answer {
 
     private Long questionId;
 
-    private Long writerId;
+    private int sub_id; // 객관식 1~5면 1~5 해당
 
-    private String answerText;
+    private String choiceText;
 
-    public Answer(){};
-
-    public Answer(Long writerId, Long surveyId, Long questionId, String answerText) {
+    public QuestionChoice(Long surveyId, Long questionId, int sub_id, String choiceText){
         this.surveyId = surveyId;
+        this.choiceText = choiceText;
+        this.sub_id = sub_id;
         this.questionId = questionId;
-        this.writerId = writerId;
-        this.answerText = answerText;
     }
 }

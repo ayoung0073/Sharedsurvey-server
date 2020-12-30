@@ -17,5 +17,7 @@ public class QuestionRequestDto {
 
     private boolean existFile;
 
+    private String[] choiceTexts;
+
     private String filename;
 }

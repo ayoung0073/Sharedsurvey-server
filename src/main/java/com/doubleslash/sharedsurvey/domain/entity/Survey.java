@@ -25,6 +25,8 @@ public class Survey extends Timestamped {
 
     private String name;
 
+    private String category;
+
     private String description;
 
     private Date startDate;
@@ -44,6 +46,7 @@ public class Survey extends Timestamped {
 
     public Survey(SurveyRequestDto requestDto){
         this.writer = requestDto.getWriterId();
+        this.category = requestDto.getCategory();
         this.name = requestDto.getName();
         this.description = requestDto.getDescription();
         this.startDate = requestDto.getStartDate();

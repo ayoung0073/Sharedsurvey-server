@@ -51,10 +51,10 @@ public class MemberController {
                     .age(requestDto.getAge())
                     .gender(requestDto.isGender())
                     .name(requestDto.getName())
-                    .roles(Collections.singletonList("ROLE_Member"))// 최초 가입시 MEMBER 로 설정
+                    .roles(Collections.singletonList("ROLE_MEMBER"))// 최초 가입시 MEMBER 로 설정
                     .memberId(requestDto.getMemberId())
                     .password(requestDto.getPassword())
-                    .point(30)
+                    .point(20) // 기본 포인트 20 지급
                     .build());
             map.put("success", true);
         }
@@ -85,14 +85,12 @@ public class MemberController {
 
     @GetMapping("/checkJWT")
     public String list(@AuthenticationPrincipal Member user){
-        //권한체크
         //Authentication user = SecurityContextHolder.getContext().getAuthentication();
-        //user.
         //if(user.getPrincipal().equals("anonymousUser")) return "유효하지 않은 토큰";
         if(user == null) return "유효하지 않은 토큰";
 
         else {
-//            Member user2 = (Member) user.getPrincipal();
+            //Member user2 = (Member) user.getPrincipal();
             //Member user2 = (Member) user.getPrincipal();
             System.out.println(user.getId());
             return user.getAuthorities() + " / " + user.getMemberId() + " / " + user.getPassword();
