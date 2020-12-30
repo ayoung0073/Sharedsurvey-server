@@ -11,6 +11,8 @@
 - [DELETE] /survey/{surveyId} 해당 설문조사 삭제
 - [GET] /survey/{surveyId} 해당 설문조사 보기
 - [POST] /survey/{surveyId} 설문조사 응답하기
-- [GET] /survey/answer/{surveyId} 해당 설문조사 응답 보기
+- [GET] /survey/{surveyId}/answer 해당 설문조사 응답 보기
 - [GET] /survey?search=~  검색하고자 하는 단어를 포함하는 설문조사 모음
 - [GET] /survey/end?search=~ 검색하고자 하는 단어를 포함하는 종료된 설문조사 모음
+- [GET] /survey/{surveyId}/me 해당 설문조사에 참여한 내 답변 보기
+- [GET] /{memberId} 마이페이지 보기를 포함하는 종료된 설문조사 모음
