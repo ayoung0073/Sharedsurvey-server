@@ -1,6 +1,6 @@
 package com.doubleslash.sharedsurvey.domain.entity;
 
-import com.doubleslash.sharedsurvey.domain.dto.MemberRequestDto;
+import com.doubleslash.sharedsurvey.domain.dto.member.MemberRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

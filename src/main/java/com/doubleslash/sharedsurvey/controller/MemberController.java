@@ -1,8 +1,8 @@
 package com.doubleslash.sharedsurvey.controller;
 
 import com.doubleslash.sharedsurvey.config.security.JwtTokenProvider;
-import com.doubleslash.sharedsurvey.domain.dto.LoginRequestDto;
-import com.doubleslash.sharedsurvey.domain.dto.MemberRequestDto;
+import com.doubleslash.sharedsurvey.domain.dto.member.LoginRequestDto;
+import com.doubleslash.sharedsurvey.domain.dto.member.MemberRequestDto;
 import com.doubleslash.sharedsurvey.domain.entity.Member;
 import com.doubleslash.sharedsurvey.repository.MemberRepository;
 import com.doubleslash.sharedsurvey.service.MemberService;

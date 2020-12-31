@@ -1,5 +1,6 @@
-package com.doubleslash.sharedsurvey.domain.dto;
+package com.doubleslash.sharedsurvey.domain.dto.survey;
 
+import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionUpdateDto;
 import lombok.Getter;
 import lombok.Setter;
 

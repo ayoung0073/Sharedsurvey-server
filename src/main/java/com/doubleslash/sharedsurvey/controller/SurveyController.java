@@ -1,9 +1,9 @@
 package com.doubleslash.sharedsurvey.controller;
 
-import com.doubleslash.sharedsurvey.domain.dto.AnswerRequestDto;
-import com.doubleslash.sharedsurvey.domain.dto.SuccessDto;
-import com.doubleslash.sharedsurvey.domain.dto.SurveyRequestDto;
-import com.doubleslash.sharedsurvey.domain.dto.SurveyUpdateDto;
+import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.AnswerRequestDto;
+import com.doubleslash.sharedsurvey.domain.dto.response.SuccessDto;
+import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyRequestDto;
+import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyUpdateDto;
 import com.doubleslash.sharedsurvey.domain.entity.Answer;
 import com.doubleslash.sharedsurvey.domain.entity.Member;
 import com.doubleslash.sharedsurvey.domain.entity.Point;

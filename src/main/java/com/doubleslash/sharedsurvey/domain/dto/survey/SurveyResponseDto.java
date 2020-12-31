@@ -1,4 +1,4 @@
-package com.doubleslash.sharedsurvey.domain.dto;
+package com.doubleslash.sharedsurvey.domain.dto.survey;
 
 import com.doubleslash.sharedsurvey.domain.entity.Survey;
 import lombok.Getter;

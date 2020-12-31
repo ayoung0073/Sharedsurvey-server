@@ -1,9 +1,8 @@
-package com.doubleslash.sharedsurvey.domain.dto;
+package com.doubleslash.sharedsurvey.domain.dto.survey;
 
-import com.doubleslash.sharedsurvey.domain.entity.Question;
+import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionRequestDto;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
