@@ -88,7 +88,6 @@ public class SurveyService {
 
     @Transactional
     public boolean updateSurvey(Long id, SurveyUpdateDto updateDto){
-
         Survey survey = surveyRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다."));
         survey.updateSurvey(updateDto);
 
@@ -101,21 +100,6 @@ public class SurveyService {
         return true;
     }
 
-    @Transactional
-    public int registerAnswer(Long surveyId, AnswerRequestDto requestDto, Long memberId) {
-        Survey survey = surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다."));
-        survey.updateCount();
-        surveyRepository.save(survey);
-
-        requestDto.setWriterId(memberId);
-        for (QuestionAnswerDto dto : requestDto.getAnswer()) {
-            Answer answer = new Answer(memberId, surveyId, dto.getQuestionId(), dto.getAnswerText());
-            answerRepository.save(answer);
-        }
-
-        surveyAnswerRepository.save(new SurveyAnswer(surveyId, memberId));
-        return survey.getPoint();
-    }
 
 
     @Transactional
@@ -134,49 +118,5 @@ public class SurveyService {
         map.put("choices", choices);
 
         return map;
-    }
-
-
-    @Transactional
-    public Map<Object, Object> getAnswers(Long surveyId){
-        List<Question> questions = questionRepository.findAllBySurveyId(surveyId);
-        Map<Object, Object> map = new HashMap<>();
-        List<Answer> answers;
-        for (Question question : questions) {
-            answers = answerRepository.findAllByQuestionId(question.getId());
-            String[] answerTexts = new String[answers.size()];
-
-            for(int i = 0; i < answers.size(); i++){
-                answerTexts[i] = answers.get(i).getAnswerText();
-            }
-            map.put(question.getQuestionText(), answerTexts);
-        }
-        return map;
-    }
-
-    @Transactional
-    public List<QuestionAnswerResponseDto> getQuestionAndAnswerBymemberId(Long surveyId, Long memberId){
-        List<Question> questions = questionRepository.findAllBySurveyId(surveyId);
-
-        List<QuestionAnswerResponseDto> list = new ArrayList<>();
-        for(Question q : questions){
-            QuestionAnswerResponseDto dto = new QuestionAnswerResponseDto();
-            dto.setQuestion(q.getQuestionText());
-            dto.setQuestionCategoryId(q.getQuestionCategoryId());
-            List<QuestionChoice> questionChoiceList = questionChoiceRepository.findAllByQuestionId(q.getId());
-            //List<String> choiceTexts = new ArrayList<>();
-            String[] choiceTexts = new String[questionChoiceList.size()];
-            List<String> answers = new ArrayList<>();
-            for(int i = 0; i < questionChoiceList.size(); i++){
-                choiceTexts[i] = questionChoiceList.get(i).getChoiceText();
-                //.add(answerList.get(i).getAnswerText());
-            }
-            dto.setChoiceTexts(choiceTexts);
-            dto.setAnswer(answerRepository.findByQuestionIdAndWriterId(q.getId(), memberId).getAnswerText());
-            list.add(dto);
-        }
-        return list;
-        //List<QuestionChoice> questionChoices = questionChoiceRepository.findAllBySurveyId(surveyId);
-        //List<Answer> answers = answerRepository.findAllBySurveyId(surveyId);
     }
 }
