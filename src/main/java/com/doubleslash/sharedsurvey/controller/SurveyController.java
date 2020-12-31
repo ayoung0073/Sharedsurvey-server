@@ -8,10 +8,8 @@ import com.doubleslash.sharedsurvey.domain.entity.Answer;
 import com.doubleslash.sharedsurvey.domain.entity.Member;
 import com.doubleslash.sharedsurvey.domain.entity.Point;
 import com.doubleslash.sharedsurvey.domain.entity.Survey;
-import com.doubleslash.sharedsurvey.repository.AnswerRepository;
-import com.doubleslash.sharedsurvey.repository.MemberRepository;
-import com.doubleslash.sharedsurvey.repository.PointRepository;
-import com.doubleslash.sharedsurvey.repository.SurveyRepository;
+import com.doubleslash.sharedsurvey.repository.*;
+import com.doubleslash.sharedsurvey.service.AnswerService;
 import com.doubleslash.sharedsurvey.service.PointService;
 import com.doubleslash.sharedsurvey.service.SurveyService;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +26,13 @@ public class SurveyController {
 
     private final SurveyService surveyService;
     private final PointService pointService;
+    private final AnswerService answerService;
 
     private final MemberRepository memberRepository;
     private final SurveyRepository surveyRepository;
     private final AnswerRepository answerRepository;
     private final PointRepository pointRepository;
+    private final SurveyAnswerRepository surveyAnswerRepository;
 
 
     @PostMapping("/survey") // 설문조사 등록
@@ -91,12 +91,18 @@ public class SurveyController {
         //Authentication user = SecurityContextHolder.getContext().getAuthentication();
         Map<String, Object> map = new HashMap<>();
         if (member != null) {
-            //Optional<Member> optional = memberRepository.findByMemberId(member.getMemberId());
-            //if (optional.isPresent()) {
-            Long memberId = member.getId();
-            int point = surveyService.registerAnswer(surveyId, requestDto, memberId);
-            map.put("point", pointService.getPoint(surveyId, point,member));
-            map.put("success", true);
+            if(surveyAnswerRepository.findBySurveyIdAndAnswerMemberId(surveyId, member.getId()).isPresent()) {
+                map.put("success", false);
+                map.put("message", "이미 답변한 설문조사입니다.");
+            }
+            else {
+                //Optional<Member> optional = memberRepository.findByMemberId(member.getMemberId());
+                //if (optional.isPresent()) {
+                Long memberId = member.getId();
+                int point = answerService.registerAnswer(surveyId, requestDto, memberId);
+                map.put("point", pointService.getPoint(surveyId, point, member));
+                map.put("success", true);
+            }
             //}
         } else {
             map.put("success", false);
@@ -115,7 +121,7 @@ public class SurveyController {
             if (memberRepository.findById(survey.getWriter()).orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다.")).getMemberId().equals(member.getMemberId())) {
                 pointService.usePoint(member, surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다.")).getPoint());
             }
-            map.put("answers", surveyService.getAnswers(surveyId));
+            map.put("answers", answerService.getAnswers(surveyId));
         }
         else {
             map.put("success", false);
@@ -144,7 +150,7 @@ public class SurveyController {
         Map<String, Object> map = new HashMap<>();
         if (member != null) {
             map.put("success",true);
-            map.put("response",surveyService.getQuestionAndAnswerBymemberId(surveyId, member.getId()));
+            map.put("response",answerService.getQuestionAndAnswerBymemberId(surveyId, member.getId()));
         }
         else map.put("success", false);
 
