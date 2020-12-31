@@ -1,6 +1,6 @@
 package com.doubleslash.sharedsurvey.controller;
 
-import com.doubleslash.sharedsurvey.domain.dto.ExceptionDto;
+import com.doubleslash.sharedsurvey.domain.dto.response.ExceptionDto;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 

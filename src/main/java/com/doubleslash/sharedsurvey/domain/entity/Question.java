@@ -1,8 +1,8 @@
 package com.doubleslash.sharedsurvey.domain.entity;
 
 
-import com.doubleslash.sharedsurvey.domain.dto.QuestionRequestDto;
-import com.doubleslash.sharedsurvey.domain.dto.QuestionUpdateDto;
+import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionRequestDto;
+import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionUpdateDto;
 import lombok.Getter;
 
 import javax.persistence.Entity;

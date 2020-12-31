@@ -1,7 +1,9 @@
 package com.doubleslash.sharedsurvey.service;
 
-import com.doubleslash.sharedsurvey.SharedsurveyApplication;
-import com.doubleslash.sharedsurvey.domain.dto.*;
+import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionRequestDto;
+import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionUpdateDto;
+import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyRequestDto;
+import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyUpdateDto;
 import com.doubleslash.sharedsurvey.domain.entity.*;
 import com.doubleslash.sharedsurvey.repository.*;
 import lombok.RequiredArgsConstructor;
