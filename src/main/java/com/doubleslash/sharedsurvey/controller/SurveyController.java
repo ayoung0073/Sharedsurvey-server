@@ -118,8 +118,8 @@ public class SurveyController {
 
         if (member != null) {
             map.put("success", true);
-            if (memberRepository.findById(survey.getWriter()).orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다.")).getMemberId().equals(member.getMemberId())) {
-                pointService.usePoint(member, surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다.")).getPoint());
+            if (!memberRepository.findById(survey.getWriter()).orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다.")).getMemberId().equals(member.getMemberId())) {
+                pointService.usePoint(member,surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다.")).getPoint(), surveyId);
             }
             map.put("answers", answerService.getAnswers(surveyId));
         }
@@ -150,7 +150,7 @@ public class SurveyController {
         Map<String, Object> map = new HashMap<>();
         if (member != null) {
             map.put("success",true);
-            map.put("response",answerService.getQuestionAndAnswerBymemberId(surveyId, member.getId()));
+            map.put("response",answerService.getQuestionAndAnswerByMemberId(surveyId, member.getId()));
         }
         else map.put("success", false);
 

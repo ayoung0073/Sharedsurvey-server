@@ -3,14 +3,14 @@ package com.doubleslash.sharedsurvey.domain.entity;
 import com.doubleslash.sharedsurvey.domain.Timestamped;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyUpdateDto;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
+@AllArgsConstructor
 @Getter
 @Entity
 public class Survey extends Timestamped {
@@ -42,6 +42,11 @@ public class Survey extends Timestamped {
     private int responseCount;
 
     private boolean existFile = false;
+
+    //@OneToMany(mappedBy="survey", targetEntity = Question.class) // 이거와 @JoinColumn 같이 쓰면 안됨
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "question_key")
+    private List<Question> questions;
 
 
     public Survey(SurveyRequestDto requestDto){

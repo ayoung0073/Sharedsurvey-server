@@ -29,9 +29,10 @@ public class PointService {
 
     }
 
-    public void usePoint(Member member, int point){
+    public void usePoint(Member member, int point, Long surveyId){
         member.usePoint(point);
 
+        pointRepository.save(new Point(member.getId(), point, false, surveyId));
         memberRepository.save(member);
     }
 
