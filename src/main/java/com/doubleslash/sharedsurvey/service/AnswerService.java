@@ -28,6 +28,8 @@ public class AnswerService {
         Survey survey = surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다."));
         survey.updateCount();
         surveyRepository.save(survey);
+        SurveyAnswer surveyAnswer = new SurveyAnswer(surveyId, memberId);
+        surveyAnswerRepository.save(surveyAnswer);
 
         requestDto.setWriterId(memberId);
         for (QuestionAnswerDto dto : requestDto.getAnswer()) {
@@ -58,7 +60,7 @@ public class AnswerService {
     }
 
     @Transactional
-    public List<QuestionAnswerResponseDto> getQuestionAndAnswerBymemberId(Long surveyId, Long memberId){
+    public List<QuestionAnswerResponseDto> getQuestionAndAnswerByMemberId(Long surveyId, Long memberId){
         List<Question> questions = getSurvey(surveyId);
 
         List<QuestionAnswerResponseDto> list = new ArrayList<>();
@@ -66,14 +68,21 @@ public class AnswerService {
             QuestionAnswerResponseDto dto = new QuestionAnswerResponseDto();
             dto.setQuestion(q.getQuestionText());
             dto.setQuestionCategoryId(q.getQuestionCategoryId());
+
+
             List<QuestionChoice> questionChoiceList = questionChoiceRepository.findAllByQuestionId(q.getId());
             //List<String> choiceTexts = new ArrayList<>();
             String[] choiceTexts = new String[questionChoiceList.size()];
-            List<String> answers = new ArrayList<>();
             for(int i = 0; i < questionChoiceList.size(); i++){
                 choiceTexts[i] = questionChoiceList.get(i).getChoiceText();
                 //.add(answerList.get(i).getAnswerText());
             }
+            System.out.println(q.getAnswers().size());
+            System.out.println(q.getQuestionChoices().size());
+//            int i = 0;
+//            for(Answer answer: q.getAnswers()){
+//                choiceTexts[i++] = answer.getAnswerText();
+//            }
             dto.setChoiceTexts(choiceTexts);
             dto.setAnswer(answerRepository.findByQuestionIdAndWriterId(q.getId(), memberId).getAnswerText());
             list.add(dto);

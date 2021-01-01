@@ -3,13 +3,14 @@ package com.doubleslash.sharedsurvey.domain.entity;
 
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionUpdateDto;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
+@AllArgsConstructor
 @Getter
 @Entity
 public class Question {
@@ -29,6 +30,15 @@ public class Question {
     private boolean existFile = false;
 
     private String filename = "";
+
+    //@OneToMany(mappedBy="question", targetEntity= Answer.class)
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "question_survey_key")
+    private List<Answer> answers;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "question_choice_key")
+    private final List<QuestionChoice> questionChoices = new ArrayList<>();
 
     public Question(QuestionRequestDto requestDto){
         this.surveyId = requestDto.getSurveyId();
