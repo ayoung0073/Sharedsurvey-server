@@ -40,5 +40,5 @@ application.properties
 
 SecurityConfig.java
 file\
-file\
 WebMvcConfig.java
+application.yml
