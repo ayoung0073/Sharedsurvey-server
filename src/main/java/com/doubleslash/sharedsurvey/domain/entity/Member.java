@@ -1,5 +1,6 @@
 package com.doubleslash.sharedsurvey.domain.entity;
 
+import com.doubleslash.sharedsurvey.config.security.user.Role;
 import com.doubleslash.sharedsurvey.domain.dto.member.MemberRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -49,8 +50,8 @@ public class Member implements UserDetails {
     @Transient
     private List<String> roles = new ArrayList<>();
 
-    //    @Enumerated(EnumType.STRING)
-//    private Role role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     public Member(MemberRequestDto requestDto){
         this.memberId = requestDto.getMemberId();
@@ -63,9 +64,17 @@ public class Member implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        Collection<GrantedAuthority> collectors = new ArrayList<>();
+
+//        collectors.add(new GrantedAuthority() {
+//            @Override
+//            public String getAuthority() {
+//                return "ROLE_" + user.getRole(); // ROLE_ 꼭 넣어줘야 함.
+//            }
+//        });
+//        같은 뜻
+        collectors.add(()->{ return "ROLE_" + this.getRole();});
+        return collectors;
     }
 
     @Override

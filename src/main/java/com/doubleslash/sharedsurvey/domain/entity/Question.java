@@ -3,8 +3,12 @@ package com.doubleslash.sharedsurvey.domain.entity;
 
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionUpdateDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.data.jpa.repository.Query;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -19,7 +23,9 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long surveyId;
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "surveyId")
+    private Survey survey;
 
     private int questionCategoryId;
 
@@ -32,16 +38,18 @@ public class Question {
     private String filename = "";
 
     //@OneToMany(mappedBy="question", targetEntity= Answer.class)
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "question_survey_key")
+    @OneToMany(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JsonIgnoreProperties({"question"})
+    @JsonIgnore
     private List<Answer> answers;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "question_choice_key")
-    private final List<QuestionChoice> questionChoices = new ArrayList<>();
+    @OneToMany(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JsonIgnoreProperties({"question, survey, id"})
+    private List<QuestionChoice> questionChoices;
+
 
     public Question(QuestionRequestDto requestDto){
-        this.surveyId = requestDto.getSurveyId();
+        this.survey = requestDto.getSurvey();
         this.questionCategoryId = requestDto.getQuestionCategoryId();
         this.questionText = requestDto.getQuestionText();
         this.required = requestDto.isRequired();

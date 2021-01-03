@@ -1,6 +1,9 @@
 package com.doubleslash.sharedsurvey.domain.entity;
 
 import com.doubleslash.sharedsurvey.domain.Timestamped;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -9,33 +12,27 @@ import javax.persistence.*;
 @Entity
 public class Point extends Timestamped {
     // id, question(varchar), questionCategoryId
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long memberId;
+    @ManyToOne
+    @JoinColumn(name = "memberId")
+    @JsonIgnore
+    private Member member;
 
     private boolean type; // true이면 포인트 get, false이면 포인트 use
 
-    private Long surveyId;
-
-    private int pointVal;
-
-    @Transient
-    private String surveyName;
+    @ManyToOne
+    @JoinColumn(name = "surveyId")
+    private Survey survey;
 
 
-    public Point(Long memberId, int pointVal, boolean type, Long surveyId){
-        this.memberId = memberId;
+    public Point(Member member, boolean type, Survey survey){
+        this.member = member;
         this.type = type;
-        this.surveyId = surveyId;
-        this.pointVal = pointVal;
+        this.survey = survey;
     }
 
     public Point(){}
-
-    public void setSurveyName(String surveyName) {
-        this.surveyName = surveyName;
-    }
 }

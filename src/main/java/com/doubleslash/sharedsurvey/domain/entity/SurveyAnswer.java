@@ -1,13 +1,11 @@
 package com.doubleslash.sharedsurvey.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @AllArgsConstructor
 @Getter
@@ -18,13 +16,18 @@ public class SurveyAnswer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long surveyId;
+    @ManyToOne
+    @JoinColumn(name = "surveyId")
+    private Survey survey;
 
-    private Long answerMemberId;
+    @ManyToOne
+    @JoinColumn(name = "answerMemberId")
+    @JsonIgnore
+    private Member answerMember;
 
-    public SurveyAnswer(Long surveyId, Long answerMemberId){
-        this.surveyId = surveyId;
-        this.answerMemberId = answerMemberId;
+    public SurveyAnswer(Survey survey, Member answerMember){
+        this.survey = survey;
+        this.answerMember = answerMember;
     }
 
     public SurveyAnswer(){}

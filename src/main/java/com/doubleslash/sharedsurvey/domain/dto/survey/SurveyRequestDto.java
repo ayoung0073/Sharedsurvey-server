@@ -1,6 +1,7 @@
 package com.doubleslash.sharedsurvey.domain.dto.survey;
 
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionRequestDto;
+import com.doubleslash.sharedsurvey.domain.entity.Member;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +12,7 @@ import java.util.List;
 @Setter
 public class SurveyRequestDto {
 
-    private Long writerId;
+    private Member writer;
 
     private String name; // 설문조사 이름
 
