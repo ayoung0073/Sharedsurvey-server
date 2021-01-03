@@ -3,6 +3,7 @@ package com.doubleslash.sharedsurvey.domain.entity;
 
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionUpdateDto;
+import com.doubleslash.sharedsurvey.utils.GoogleQuestion;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -58,6 +59,14 @@ public class Question {
 
     public Question() {
 
+    }
+
+    public Question(GoogleQuestion question){
+        this.survey =  question.getSurvey();
+        this.questionCategoryId = question.getCategory();
+        this.questionText = question.getQuestionText();
+        this.required = question.isRequired();
+        this.existFile = false;
     }
 
     public void setFilename(String filename) {

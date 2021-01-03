@@ -1,8 +1,10 @@
 package com.doubleslash.sharedsurvey.domain.entity;
 
 import com.doubleslash.sharedsurvey.domain.Timestamped;
+import com.doubleslash.sharedsurvey.domain.dto.google.GoogleRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyUpdateDto;
+import com.doubleslash.sharedsurvey.utils.Google;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -88,5 +90,16 @@ public class Survey extends Timestamped {
 
     public void updateCount(){
         this.responseCount ++;
+    }
+
+    public Survey(Google google, GoogleRequestDto dto){
+        this.name = google.getName();
+        this.category = dto.getCategory();
+        this.description = google.getDescription();
+        this.writer = dto.getWriter();
+        this.startDate = dto.getStartDate();
+        this.endDate = dto.getEndDate();
+        this.point = dto.getPoint();
+        this.state = true;
     }
 }
