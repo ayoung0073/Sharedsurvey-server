@@ -3,6 +3,10 @@ package com.doubleslash.sharedsurvey.domain.entity;
 import com.doubleslash.sharedsurvey.domain.Timestamped;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyUpdateDto;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -21,7 +25,10 @@ public class Survey extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long writer; // Member - id
+    @ManyToOne // Many = Survey, One = User
+    @JoinColumn(name = "memberId")    // 자동으로 FK 생성
+    @JsonIgnore
+    private Member writer; // Member - id
 
     private String name;
 
@@ -44,13 +51,13 @@ public class Survey extends Timestamped {
     private boolean existFile = false;
 
     //@OneToMany(mappedBy="survey", targetEntity = Question.class) // 이거와 @JoinColumn 같이 쓰면 안됨
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "question_key")
+    @OneToMany(mappedBy = "survey", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JsonIgnoreProperties({"survey"})
     private List<Question> questions;
 
 
     public Survey(SurveyRequestDto requestDto){
-        this.writer = requestDto.getWriterId();
+        this.writer = requestDto.getWriter();
         this.category = requestDto.getCategory();
         this.name = requestDto.getName();
         this.description = requestDto.getDescription();

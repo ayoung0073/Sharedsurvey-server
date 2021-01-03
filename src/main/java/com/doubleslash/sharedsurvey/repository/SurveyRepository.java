@@ -13,19 +13,21 @@ import java.util.List;
 public interface SurveyRepository extends JpaRepository<Survey, Long> {
 
     // 종료된 설문조사 리스트
-    @Query(value = "select * from survey where date(end_date) < date(now()) order by end_date, response_count;", nativeQuery = true)
+    @Query(value = "select * from Survey where date(endDate) < date(now()) order by endDate, responseCount;", nativeQuery = true)
     List<Survey> findAllByOrderByEndDateAndResponseCount();
 
     // 현재 진행 중인 설문조사 리스트
-    @Query(value = "select * from survey where date(end_date) > date(now()) order by end_date, response_count;", nativeQuery = true)
+    @Query(value = "select * from Survey where date(endDate) > date(now()) order by endDate, responseCount;", nativeQuery = true)
     List<Survey> findAllByOrderByEndDateAndResponseCountEndDateAfter();
 
 
     // "나의" 종료된 설문조사 리스트
-    List<Survey> findAllByEndDateBeforeAndWriterOrderByEndDate(Date date, Long writerId);
+    @Query(value = "select * from Survey where date(endDate) < date(now()) AND memberId = ?1 order by endDate, responseCount;", nativeQuery = true)
+    List<Survey> findAllByEndDateBeforeAndWriterOrderByEndDate(Long writerId);
 
     // "나의" 현재 진행 중인 설문조사 리스트
-    List<Survey> findAllByEndDateAfterAndWriterOrderByEndDate(Date date, Long writerId);
+    @Query(value = "select * from Survey where date(endDate) > date(now()) AND memberId = ?1 order by endDate, responseCount;", nativeQuery = true)
+    List<Survey> findAllByEndDateAfterAndWriterOrderByEndDate(Long writerId);
 
 
     // search
