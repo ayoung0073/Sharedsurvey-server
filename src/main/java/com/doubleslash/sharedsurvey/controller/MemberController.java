@@ -1,6 +1,7 @@
 package com.doubleslash.sharedsurvey.controller;
 
 import com.doubleslash.sharedsurvey.config.security.JwtTokenProvider;
+import com.doubleslash.sharedsurvey.config.security.user.Role;
 import com.doubleslash.sharedsurvey.domain.dto.member.LoginRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.member.MemberRequestDto;
 import com.doubleslash.sharedsurvey.domain.entity.Member;
@@ -51,7 +52,7 @@ public class MemberController {
                     .age(requestDto.getAge())
                     .gender(requestDto.isGender())
                     .name(requestDto.getName())
-                    .roles(Collections.singletonList("ROLE_MEMBER"))// 최초 가입시 MEMBER 로 설정
+                    .role(Role.MEMBER)// 최초 가입시 MEMBER 로 설정
                     .memberId(requestDto.getMemberId())
                     .password(requestDto.getPassword())
                     .point(20) // 기본 포인트 20 지급

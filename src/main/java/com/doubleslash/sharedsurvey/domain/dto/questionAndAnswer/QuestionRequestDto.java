@@ -1,5 +1,6 @@
 package com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer;
 
+import com.doubleslash.sharedsurvey.domain.entity.Survey;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class QuestionRequestDto {
 
-    private Long surveyId;
+    private Survey survey;
 
     private int questionCategoryId;
 

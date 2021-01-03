@@ -1,11 +1,9 @@
 package com.doubleslash.sharedsurvey.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Getter
 @Entity
@@ -15,20 +13,23 @@ public class Answer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long surveyId;
+    @ManyToOne // 하나의 게시글에 여러개 답변 -> ManyToOne
+    @JoinColumn(name="questionId")
+    @JsonIgnore
+    private Question question;
 
-    private Long questionId;
-
-    private Long writerId;
+    @ManyToOne // 하나의 게시글에 여러개 답변 -> ManyToOne
+    @JoinColumn(name="writerId")
+    @JsonIgnore
+    private Member writer;
 
     private String answerText;
 
     public Answer(){};
 
-    public Answer(Long writerId, Long surveyId, Long questionId, String answerText) {
-        this.surveyId = surveyId;
-        this.questionId = questionId;
-        this.writerId = writerId;
+    public Answer(Member writer, Question question, String answerText) {
+        this.question = question;
+        this.writer = writer;
         this.answerText = answerText;
     }
 }

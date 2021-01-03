@@ -7,8 +7,8 @@ import com.doubleslash.sharedsurvey.domain.entity.*;
 import com.doubleslash.sharedsurvey.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,42 +24,57 @@ public class AnswerService {
     private final QuestionChoiceRepository questionChoiceRepository;
 
     @Transactional
-    public int registerAnswer(Long surveyId, AnswerRequestDto requestDto, Long memberId) {
+    public int registerAnswer(Long surveyId, AnswerRequestDto requestDto, Member member) {
         Survey survey = surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다."));
         survey.updateCount();
         surveyRepository.save(survey);
-        SurveyAnswer surveyAnswer = new SurveyAnswer(surveyId, memberId);
-        surveyAnswerRepository.save(surveyAnswer);
+        SurveyAnswer surveyAnswer = new SurveyAnswer(survey, member);
 
-        requestDto.setWriterId(memberId);
+        requestDto.setWriter(member);
+
         for (QuestionAnswerDto dto : requestDto.getAnswer()) {
-            Answer answer = new Answer(memberId, surveyId, dto.getQuestionId(), dto.getAnswerText());
-            answerRepository.save(answer);
+            int result = answerRepository.answerSave(dto.getAnswerText(), dto.getQuestionId(),survey.getWriter().getId());
+            if(result == 0) throw new IllegalArgumentException("답변 저장 실패");
         }
 
-        surveyAnswerRepository.save(new SurveyAnswer(surveyId, memberId));
+        surveyAnswerRepository.save(surveyAnswer);
         return survey.getPoint();
     }
 
-    @Transactional
-    public Map<Object, Object> getAnswers(Long surveyId){
-        List<Question> questions = getSurvey(surveyId);
+    @Transactional(readOnly = true)
+    public List<Map<Object, Object>> getAnswers(Long surveyId){
+        Survey survey = surveyRepository.findById(surveyId).orElseThrow(
+                () -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다")
+        );
+        List<Question> questions = survey.getQuestions();
 
-        Map<Object, Object> map = new HashMap<>();
+        List<Map<Object, Object>> list = new ArrayList<>();
         List<Answer> answers;
+        System.out.println(questions.size());
         for (Question question : questions) {
-            answers = answerRepository.findAllByQuestionId(question.getId());
-            String[] answerTexts = new String[answers.size()];
-
-            for(int i = 0; i < answers.size(); i++){
-                answerTexts[i] = answers.get(i).getAnswerText();
+            Map<Object, Object> map = new HashMap<>();
+            System.out.println(question.getQuestionText());
+            answers = question.getAnswers();
+            String[] answerArr = new String[answers.size()];
+            int i = 0;
+            for(Answer a: answers){
+                answerArr[i++] = a.getAnswerText();
             }
-            map.put(question.getQuestionText(), answerTexts);
+            map.put("questionText", question.getQuestionText());
+            map.put("answerText", answerArr);
+
+            list.add(map);
+//            String[] answerTexts = new String[answers.size()];
+//
+//            for(int i = 0; i < answers.size(); i++){
+//                answerTexts[i] = answers.get(i).getAnswerText();
+//            }
+//            map.put(question.getQuestionText(), answers);
         }
-        return map;
+        return list;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<QuestionAnswerResponseDto> getQuestionAndAnswerByMemberId(Long surveyId, Long memberId){
         List<Question> questions = getSurvey(surveyId);
 
@@ -70,7 +85,7 @@ public class AnswerService {
             dto.setQuestionCategoryId(q.getQuestionCategoryId());
 
 
-            List<QuestionChoice> questionChoiceList = questionChoiceRepository.findAllByQuestionId(q.getId());
+            List<QuestionChoice> questionChoiceList = q.getQuestionChoices();
             //List<String> choiceTexts = new ArrayList<>();
             String[] choiceTexts = new String[questionChoiceList.size()];
             for(int i = 0; i < questionChoiceList.size(); i++){
