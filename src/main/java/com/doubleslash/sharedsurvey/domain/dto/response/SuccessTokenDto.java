@@ -7,6 +7,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class SuccessDto {
+public class SuccessTokenDto {
     private boolean success;
+    private String token;
 }

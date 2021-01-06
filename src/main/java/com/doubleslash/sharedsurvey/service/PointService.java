@@ -27,7 +27,7 @@ public class PointService {
     @Transactional
     public int getPoint(Long surveyId, int point, Member member)  {
         Survey survey = surveyRepository.findById(surveyId).orElseThrow(
-                () -> {return new IllegalArgumentException("해당 설문조사가 없습니다.");});
+                () -> {throw new IllegalArgumentException("해당 설문조사가 없습니다.");});
         member.getPoint(survey.getPoint());
         memberRepository.save(member);
 

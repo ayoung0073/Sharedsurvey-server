@@ -16,12 +16,11 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
-public class AnswerService {
+public class QuestionAnswerService {
     private final SurveyRepository surveyRepository;
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final SurveyAnswerRepository surveyAnswerRepository;
-    private final QuestionChoiceRepository questionChoiceRepository;
 
     @Transactional
     public int registerAnswer(Long surveyId, AnswerRequestDto requestDto, Member member) {
@@ -39,6 +38,11 @@ public class AnswerService {
 
         surveyAnswerRepository.save(surveyAnswer);
         return survey.getPoint();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean findBySurveyIdAndAnswerMemberId(Long surveyId, Long memberId){
+        return surveyAnswerRepository.findBySurveyIdAndAnswerMemberId(surveyId, memberId).isPresent();
     }
 
     @Transactional(readOnly = true)
@@ -64,12 +68,6 @@ public class AnswerService {
             map.put("answerText", answerArr);
 
             list.add(map);
-//            String[] answerTexts = new String[answers.size()];
-//
-//            for(int i = 0; i < answers.size(); i++){
-//                answerTexts[i] = answers.get(i).getAnswerText();
-//            }
-//            map.put(question.getQuestionText(), answers);
         }
         return list;
     }
@@ -84,20 +82,12 @@ public class AnswerService {
             dto.setQuestion(q.getQuestionText());
             dto.setQuestionCategoryId(q.getQuestionCategoryId());
 
-
             List<QuestionChoice> questionChoiceList = q.getQuestionChoices();
-            //List<String> choiceTexts = new ArrayList<>();
             String[] choiceTexts = new String[questionChoiceList.size()];
             for(int i = 0; i < questionChoiceList.size(); i++){
                 choiceTexts[i] = questionChoiceList.get(i).getChoiceText();
-                //.add(answerList.get(i).getAnswerText());
             }
-            System.out.println(q.getAnswers().size());
-            System.out.println(q.getQuestionChoices().size());
-//            int i = 0;
-//            for(Answer answer: q.getAnswers()){
-//                choiceTexts[i++] = answer.getAnswerText();
-//            }
+
             dto.setChoiceTexts(choiceTexts);
             dto.setAnswer(answerRepository.findByQuestionIdAndWriterId(q.getId(), memberId).getAnswerText());
             list.add(dto);
@@ -107,5 +97,9 @@ public class AnswerService {
 
     public List<Question> getSurvey(Long surveyId){
         return questionRepository.findAllBySurveyId(surveyId);
+    }
+
+    public List<Answer> getAnswers() {
+        return answerRepository.findAll();
     }
 }
