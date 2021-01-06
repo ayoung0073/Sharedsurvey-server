@@ -47,15 +47,6 @@ spring:
     serialization:
       fail-on-empty-beans: false
 
-#JPA Configuration
 
-#Access to DialectResolutionInfo cannot be null when 'hibernate.dialect' not set 오류 발생.
-#spring.jpa.database-platform=org.hibernate.dialect.MySQL5Dialect
-#spring.jpa.show-sql=false
-#spring.jpa.hibernate.ddl-auto=create
-#
-
-#spring.jpa.properties.hibernate.format_sql=true
-#spring.jpa.show_sql=true
-#
-#spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+may:
+  base_dir: /tmp/tomcat.8080.9056073029680764243/work/Tomcat/localhost/ROOT/

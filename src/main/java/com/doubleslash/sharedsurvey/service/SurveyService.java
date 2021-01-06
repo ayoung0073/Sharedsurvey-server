@@ -1,5 +1,6 @@
 package com.doubleslash.sharedsurvey.service;
 
+import com.doubleslash.sharedsurvey.config.security.ApplicationYmlRead;
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionUpdateDto;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyRequestDto;
@@ -8,8 +9,12 @@ import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyWidelyDto;
 import com.doubleslash.sharedsurvey.domain.entity.*;
 import com.doubleslash.sharedsurvey.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -18,7 +23,9 @@ import java.util.*;
 
 @RequiredArgsConstructor
 @Service
+@PropertySource("classpath:application.yml")
 public class SurveyService {
+
     private final SurveyRepository surveyRepository;
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
@@ -26,73 +33,33 @@ public class SurveyService {
     private final SurveyAnswerRepository surveyAnswerRepository;
     private final QuestionChoiceRepository questionChoiceRepository;
 
+    private final FileService fileService;
+    private final ApplicationYmlRead applicationYmlRead;
+
     @Transactional
-    public boolean registerSurvey(SurveyRequestDto requestDto, MultipartFile[] files, Member member) throws IOException {
-
+    public boolean registerSurvey(SurveyRequestDto requestDto, MultipartFile[] files, Member member) throws Exception {
         //String baseDir = SharedsurveyApplication.class.getResource("").getPath() + "..\\..\\..\\..\\..\\..\\resources\\main\\static\\file";
-        String baseDir = "/tmp/tomcat.8080.9056073029680764243/work/Tomcat/localhost/ROOT/";
-
+        String baseDir = applicationYmlRead.getBase_dir();
         String filePath;
         String filename;
 
-        int i = 0;
-
         requestDto.setWriter(member);
-
-        System.out.println(requestDto.getCategory());
-        System.out.println(requestDto.getDescription());
-        System.out.println(requestDto.getWriter());
-        System.out.println(requestDto.getStartDate());
         Survey survey = surveyRepository.save(new Survey(requestDto));
-        
-        if(survey.isExistFile()){
-            filename = files[i].getOriginalFilename();
-            assert filename != null;
-            if(filename.split("\\.")[1].equalsIgnoreCase("png")) {
-                filePath = baseDir + "/" + "thumbnail" + survey.getId() + ".png";//files[i].getOriginalFilename();
-                survey.setFilename("thumbnail" + survey.getId() + ".png");
-                files[i++].transferTo(new File(filePath));
-                surveyRepository.save(survey);
-            }
-            else if(filename.split("\\.")[1].equalsIgnoreCase("jpg") || (filename.split("\\.")[1].equalsIgnoreCase("jpeg"))){
-                filePath = baseDir + "/" + "thumbnail" + survey.getId() + ".jpg";//files[i].getOriginalFilename();
-                survey.setFilename("thumbnail" + survey.getId() + ".jpg");
-                files[i++].transferTo(new File(filePath));
-                surveyRepository.save(survey);
-            }
+        int i = 0;
+        if(survey.isExistFile()) {
+            fileService.saveSurveyFile(survey, files);
+            i++;
         }
+        List<QuestionRequestDto> questions = requestDto.getQuestions();
+
+        fileService.saveQuestionSave(survey, questions, files, i); // i: 파일s 인덱스
 
         surveyWriterRepository.save(new SurveyWriter(survey.getId(),member.getId()));
-        List<QuestionRequestDto> questions = requestDto.getQuestions();
-        for (QuestionRequestDto s : questions) {
-            s.setSurvey(survey);
-            Question question = questionRepository.save(new Question(s));
-            if(s.isExistFile()){ // .png, .jpg, .jpeg 만 가능
-                filename = files[i].getOriginalFilename();
-                assert filename != null;
-                if(filename.split("\\.")[1].equalsIgnoreCase("png")) {
-                    filePath = baseDir + "/" + question.getId() + ".png";//files[i].getOriginalFilename();
-                    question.setFilename(question.getId() + ".png");
-                    files[i++].transferTo(new File(filePath));
-                    questionRepository.save(question);
-                }
-                else if(filename.split("\\.")[1].equalsIgnoreCase("jpg") || (filename.split("\\.")[1].equalsIgnoreCase("jpeg"))){
-                    filePath = baseDir + "/" + question.getId() + ".jpg";//files[i].getOriginalFilename();
-                    question.setFilename(question.getId() + ".jpg");
-                    files[i++].transferTo(new File(filePath));
-                    questionRepository.save(question);
-                }
-            }
-            if(s.getQuestionCategoryId() == 1 || s.getQuestionCategoryId() == 2 || s.getQuestionCategoryId() == 3){
-                // 질문 카테고리가 객관식, 체크박스, 드롭다운일 때
-                for(i = 0; i < s.getChoiceTexts().length; i++){
-                    QuestionChoice questionChoice = new QuestionChoice(survey, question, s.getChoiceTexts()[i]);
-                    questionChoiceRepository.save(questionChoice);
-                }
-            }
-        }
+
         return true;
     }
+
+
 
     @Transactional
     public boolean updateSurvey(Long id, SurveyUpdateDto updateDto){
@@ -103,9 +70,13 @@ public class SurveyService {
         for (QuestionUpdateDto s : questions) {
             Question question = questionRepository.findById(s.getQuestionId()).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다."));
             question.updateQuestion(s);
-//            questionRepository.save(question);
         }
         return true;
+    }
+
+    @Transactional
+    public void deleteBySurveyId(Long surveyId){
+        surveyRepository.deleteById(surveyId);
     }
 
     public List<SurveyWidelyDto> getSurveys(){
@@ -116,6 +87,7 @@ public class SurveyService {
         return list;
     }
 
+    @Transactional(readOnly = true)
     public List<SurveyWidelyDto> getEndSurveys(){
         List<SurveyWidelyDto> list = new ArrayList<>();
         for(Survey s: surveyRepository.findAllByOrderByEndDateAndResponseCount()){
@@ -128,22 +100,15 @@ public class SurveyService {
     public Map<String, Object> getSurveyAndQuestions(Long surveyId, Long memberId){
         Survey survey = surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다."));
 
-        //List<Question> questions = questionRepository.findAllBySurveyId(surveyId);
         List<Question> questions = survey.getQuestions();
 
         Map<String, Object> map = new HashMap<>();
-
-//        List<QuestionChoice> choices = questionChoiceRepository.findAllBySurveyId(surveyId);
-
-        //List<QuestionChoice> choices = questionChoiceRepository.findAllBySurveyId(surveyId);
-
 
         if(surveyAnswerRepository.findBySurveyIdAndAnswerMemberId(surveyId, memberId).isPresent())
             map.put("answer", true);
         else map.put("answer", false);
 
         map.put("survey",survey);
-        //map.put("choices", choices);
 
         return map;
     }
@@ -171,5 +136,15 @@ public class SurveyService {
         map.put("progress", progressList);
 
         return  map;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Survey> getSearchEnd(String searchVal) {
+        return surveyRepository.findAllByEndDateBeforeAndNameContainingOrderByEndDate(new Date(), searchVal);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Survey> getSearch(String searchVal) {
+        return surveyRepository.findAllByEndDateAfterAndNameContainingOrderByEndDate(new Date(), searchVal);
     }
 }

@@ -1,7 +1,6 @@
 package com.doubleslash.sharedsurvey.utils;
 
 import com.doubleslash.sharedsurvey.domain.dto.google.GoogleRequestDto;
-import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionRequestDto;
 import com.doubleslash.sharedsurvey.domain.entity.*;
 import com.doubleslash.sharedsurvey.repository.QuestionChoiceRepository;
 import com.doubleslash.sharedsurvey.repository.QuestionRepository;
@@ -32,7 +31,6 @@ public class GoogleSurveyParsing {
 
     @Transactional
     public boolean registerSurvey(String url, GoogleRequestDto requestDto, MultipartFile[] files, Member member) throws IOException {
-        System.out.println(url);
         Google google = parsing(url);
 
         String baseDir = "/tmp/tomcat.8080.9056073029680764243/work/Tomcat/localhost/ROOT/";
@@ -92,12 +90,10 @@ public class GoogleSurveyParsing {
 
         Elements boxElements = doc.select(".freebirdFormviewerViewNumberedItemContainer"); // 각 질문 container
 
-
         List<GoogleQuestion> googleQuestionList = new ArrayList<>();
         for (Element e : boxElements) {
 
             // 질문 내용 & 필수항목 데이터
-
             GoogleQuestion googleQuestion = new GoogleQuestion();
             String questionText = e.selectFirst(".freebirdFormviewerComponentsQuestionBaseTitle").text(); // 질문내용 select
 
@@ -108,10 +104,8 @@ public class GoogleSurveyParsing {
             }
             else googleQuestion.setQuestionText(questionText);
 
-
             // 질문 카테고리 데이터
-
-            int category = 0;
+            int category;
             //  라디오 버튼 클래스명
             if (e.getElementsByClass("freebirdFormviewerViewItemsRadiogroupRadioGroup").size() > 0) category = 1;
             //  체크박스 클래스명
@@ -137,18 +131,17 @@ public class GoogleSurveyParsing {
 
             google.setGoogleQuestions(googleQuestionList);
         }
-
-        System.out.println(google.getName());
-        System.out.println(google.getDescription());
-        for (int i = 0; i < google.getGoogleQuestions().size(); i++) {
-            System.out.println("==============================================================================================================================================================================================");
-            GoogleQuestion googleQuestion = googleQuestionList.get(i);
-            System.out.println(googleQuestion.questionText);
-            System.out.println("카테고리 : " + googleQuestion.category);
-            System.out.println(googleQuestion.required ? "(필수)" : "(선택)");
-            for (int j = 0; j < googleQuestion.getChoiceTexts().length; j++)
-                System.out.println("    " + googleQuestion.choiceTexts[j]);
-        }
+//        System.out.println(google.getName());
+//        System.out.println(google.getDescription());
+//        for (int i = 0; i < google.getGoogleQuestions().size(); i++) {
+//            System.out.println("==============================================================================================================================================================================================");
+//            GoogleQuestion googleQuestion = googleQuestionList.get(i);
+//            System.out.println(googleQuestion.questionText);
+//            System.out.println("카테고리 : " + googleQuestion.category);
+//            System.out.println(googleQuestion.required ? "(필수)" : "(선택)");
+//            for (int j = 0; j < googleQuestion.getChoiceTexts().length; j++)
+//                System.out.println("    " + googleQuestion.choiceTexts[j]);
+//        }
         return google;
     }
 }

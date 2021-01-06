@@ -7,10 +7,8 @@ import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyUpdateDto;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyWidelyDto;
 import com.doubleslash.sharedsurvey.domain.entity.Answer;
 import com.doubleslash.sharedsurvey.domain.entity.Member;
-import com.doubleslash.sharedsurvey.domain.entity.Point;
 import com.doubleslash.sharedsurvey.domain.entity.Survey;
-import com.doubleslash.sharedsurvey.repository.*;
-import com.doubleslash.sharedsurvey.service.AnswerService;
+import com.doubleslash.sharedsurvey.service.QuestionAnswerService;
 import com.doubleslash.sharedsurvey.service.PointService;
 import com.doubleslash.sharedsurvey.service.SurveyService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +16,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -27,26 +24,17 @@ public class SurveyController {
 
     private final SurveyService surveyService;
     private final PointService pointService;
-    private final AnswerService answerService;
-
-    private final MemberRepository memberRepository;
-    private final SurveyRepository surveyRepository;
-    private final AnswerRepository answerRepository;
-    private final PointRepository pointRepository;
-    private final SurveyAnswerRepository surveyAnswerRepository;
-
+    private final QuestionAnswerService answerService;
 
     @PostMapping("/survey") // 설문조사 등록
-    public Map<String, Boolean> createSurvey(@RequestPart(value = "image", required = false) MultipartFile[] files,
+    public SuccessDto createSurvey(@RequestPart(value = "image", required = false) MultipartFile[] files,
                                              @RequestPart(value = "requestDto") SurveyRequestDto requestDto,
-                                             @AuthenticationPrincipal Member member) throws IOException {
-        Map<String, Boolean> map = new HashMap<>();
+                                             @AuthenticationPrincipal Member member) throws Exception {
         if (member != null)
-            map.put("success", surveyService.registerSurvey(requestDto, files, member));
+            return new SuccessDto(surveyService.registerSurvey(requestDto, files, member));
         else {
-            map.put("success", false);
+            return new SuccessDto(false);
         }
-        return map;
     }
 
     // 설문조사 응답하기
@@ -68,20 +56,18 @@ public class SurveyController {
     }
 
     @PutMapping("/survey/{surveyId}") // 설문조사 생성자가 설문조사 종료할 때
-    public Map<String, Boolean> updateSurvey(@PathVariable Long surveyId, @RequestBody SurveyUpdateDto updateDto, @AuthenticationPrincipal Member member) {
-        Map<String, Boolean> map = new HashMap<>();
+    public SuccessDto updateSurvey(@PathVariable Long surveyId, @RequestBody SurveyUpdateDto updateDto, @AuthenticationPrincipal Member member) {
         if (member != null)
-            if (surveyService.updateSurvey(surveyId, updateDto)) map.put("success", true);
-            else map.put("success", false);
-        else map.put("success", false);
-
-        return map;
+            if (surveyService.updateSurvey(surveyId, updateDto)) return new SuccessDto(true);
+            else return new SuccessDto(false);
+        else return new SuccessDto(false);
     }
+
 
     @DeleteMapping("/survey/{surveyId}")
     public SuccessDto deleteSurvey(@PathVariable Long surveyId, @AuthenticationPrincipal Member member) {
         if (member != null) {
-            surveyRepository.deleteById(surveyId);
+            surveyService.deleteBySurveyId(surveyId);
             return new SuccessDto(true);
         }
         return new SuccessDto(false);
@@ -89,22 +75,17 @@ public class SurveyController {
 
     @PostMapping("/survey/{surveyId}") // answer 등록
     public Map<String, Object> createAnswer(@PathVariable Long surveyId, @RequestBody AnswerRequestDto requestDto, @AuthenticationPrincipal Member member){
-        //Authentication user = SecurityContextHolder.getContext().getAuthentication();
         Map<String, Object> map = new HashMap<>();
         if (member != null) {
-            if(surveyAnswerRepository.findBySurveyIdAndAnswerMemberId(surveyId, member.getId()).isPresent()) {
+            if(answerService.findBySurveyIdAndAnswerMemberId(surveyId, member.getId())){
                 map.put("success", false);
                 map.put("message", "이미 답변한 설문조사입니다.");
             }
             else {
-                //Optional<Member> optional = memberRepository.findByMemberId(member.getMemberId());
-                //if (optional.isPresent()) {
-                Long memberId = member.getId();
                 int point = answerService.registerAnswer(surveyId, requestDto, member);
                 map.put("point", pointService.getPoint(surveyId, point, member));
                 map.put("success", true);
             }
-            //}
         } else {
             map.put("success", false);
         }
@@ -113,17 +94,11 @@ public class SurveyController {
 
     @GetMapping("/survey/{surveyId}/answer") // surveyId // 설문조사 응답 보기
     public Map<Object, Object> getAnswer(@PathVariable Long surveyId, @AuthenticationPrincipal Member member) {
-        // Authentication user = SecurityContextHolder.getContext().getAuthentication();
         Map<Object, Object> map = new HashMap<>();
 
         if (member != null) {
             map.put("success", true);
-
-             pointService.usePoint(member, surveyId);
-//            if (!survey.getWriter().equals(member)) {
-//                //pointService.usePoint(member,surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다.")).getPoint(), surveyId);
-//                pointService.usePoint(member, survey.getPoint(), survey);
-//            }
+            pointService.usePoint(member, surveyId);
             map.put("answers", answerService.getAnswers(surveyId));
         }
         else {
@@ -135,17 +110,17 @@ public class SurveyController {
 
     @GetMapping("/survey/answers")
     public List<Answer> getAnswers() {
-        return answerRepository.findAll();
+        return answerService.getAnswers();
     }
 
     @GetMapping("/survey")
     public List<Survey> getSearch(@RequestParam("search") String searchVal) {
-        return surveyRepository.findAllByEndDateAfterAndNameContainingOrderByEndDate(new Date(), searchVal);
+        return surveyService.getSearch(searchVal);
     }
 
     @GetMapping("/survey/end") // 종료된 설문조사 search
     public List<Survey> getSearchEnd(@RequestParam("search") String searchVal) {
-        return surveyRepository.findAllByEndDateBeforeAndNameContainingOrderByEndDate(new Date(), searchVal);
+        return surveyService.getSearchEnd(searchVal);
     }
 
     @GetMapping("/survey/{surveyId}/me") // surveyId // 설문조사 응답 보기
@@ -165,17 +140,7 @@ public class SurveyController {
         Map<String, Object> map = new HashMap<>();
         if(memberId.equals(member.getId())){
             map.put("success", true);
-
             map.put("surveyList", surveyService.getMyInfo(memberId));
-            // 내가 올렸던 종료된 설문조사
-            //map.put("end", surveyRepository.findAllByEndDateBeforeAndWriterOrderByEndDate(memberId));
-
-            // 내가 올렸던 진행 중인 설문조사
-            //map.put("progress", surveyRepository.findAllByEndDateAfterAndWriterOrderByEndDate(memberId));
-
-            // 포인트 내역
-
-            //List<Point> pointList = pointRepository.findAllByMemberId(memberId);
             map.put("point", pointService.getMyPoints(memberId));
         }
         else map.put("success", false);

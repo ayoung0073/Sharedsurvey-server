@@ -1,11 +1,11 @@
 package com.doubleslash.sharedsurvey.controller;
-
 import com.doubleslash.sharedsurvey.config.security.JwtTokenProvider;
-import com.doubleslash.sharedsurvey.config.security.user.Role;
 import com.doubleslash.sharedsurvey.domain.dto.member.LoginRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.member.MemberRequestDto;
+import com.doubleslash.sharedsurvey.domain.dto.response.SuccessDto;
+import com.doubleslash.sharedsurvey.domain.dto.response.SuccessMessageDto;
+import com.doubleslash.sharedsurvey.domain.dto.response.SuccessTokenDto;
 import com.doubleslash.sharedsurvey.domain.entity.Member;
-import com.doubleslash.sharedsurvey.repository.MemberRepository;
 import com.doubleslash.sharedsurvey.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,87 +15,55 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @RequiredArgsConstructor
 @RestController
 public class MemberController {
 
     private final MemberService memberService;
-    private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @GetMapping("/member")
-    public List<Member> getMembers(){
-        return memberService.findAll();
-    }
-
     @PostMapping("/idCheck")
-    public Map<String, Boolean> idCheck(@RequestBody MemberRequestDto requestDto){
-        Map<String, Boolean> map = new HashMap<>();
-        map.put("success", !memberRepository.findByMemberId(requestDto.getMemberId()).isPresent());
-        return map;
+    public SuccessDto idCheck(@RequestBody MemberRequestDto requestDto){
+        // 기존에 있으면 false
+        if(memberService.idCheck(requestDto.getMemberId()) == null) return new SuccessDto(true);
+        else return new SuccessDto(false);
     }
 
     @PostMapping("/join")
-    public Map<String, Boolean> createMember(@RequestBody MemberRequestDto requestDto){
-        Map<String, Boolean> map = new HashMap<>();
-        if (memberRepository.findByMemberId(requestDto.getMemberId()).isPresent()) {
-            map.put("success", false);
+    public SuccessDto join(@RequestBody MemberRequestDto requestDto){
+        if (memberService.idCheck(requestDto.getMemberId()) == null) {
+            return new SuccessDto(false);
         } else {
             requestDto.setPassword(passwordEncoder.encode(requestDto.getPassword()));
-            memberRepository.save(Member.builder()
-                    .age(requestDto.getAge())
-                    .gender(requestDto.isGender())
-                    .name(requestDto.getName())
-                    .role(Role.MEMBER)// 최초 가입시 MEMBER 로 설정
-                    .memberId(requestDto.getMemberId())
-                    .password(requestDto.getPassword())
-                    .point(20) // 기본 포인트 20 지급
-                    .build());
-            map.put("success", true);
+            memberService.createMember(requestDto);
+            return new SuccessDto(true);
         }
-        return map;
     }
 
     // 로그인
     @PostMapping("/login") // Map<String, Object>
-    public Map<String, Object> login(@RequestBody LoginRequestDto requestDto) {
-          Map<String, Object> map = new HashMap<>();
-        if (!memberRepository.findByMemberId(requestDto.getMemberId()).isPresent()) {
-            map.put("success", false);
-            map.put("response","아이디 존재하지 않습니다.");
+    public Object login(@RequestBody LoginRequestDto requestDto) {
+          Member member = memberService.idCheck(requestDto.getMemberId());
 
-        } else {
-            Member member = memberRepository.findByMemberId(requestDto.getMemberId()).get();
+        if (member == null)
+            return new SuccessMessageDto(false, "해당 아이디가 존재하지 않습니다");
+        else {
             if (!passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
-                map.put("success", false);
-                map.put("response","잘못된 비밀번호입니다.");
+                return new SuccessMessageDto(false, "비밀번호를 확인해주세요");
             }
             else{
-                map.put("success", true);
-                map.put("token",jwtTokenProvider.createToken(member.getUsername(), member.getRoles()));
+                return new SuccessTokenDto(true, jwtTokenProvider.createToken(member.getUsername(), member.getRoles()));
             }
         }
-        return map;
     }
 
     @GetMapping("/checkJWT")
     public String list(@AuthenticationPrincipal Member user){
-        //Authentication user = SecurityContextHolder.getContext().getAuthentication();
-        //if(user.getPrincipal().equals("anonymousUser")) return "유효하지 않은 토큰";
         if(user == null) return "유효하지 않은 토큰";
 
         else {
-            //Member user2 = (Member) user.getPrincipal();
-            //Member user2 = (Member) user.getPrincipal();
-            System.out.println(user.getId());
             return user.getAuthorities() + " / " + user.getMemberId() + " / " + user.getPassword();
         }
     }
-
 }
