@@ -36,4 +36,6 @@ dependencies {
     compile group: 'org.jsoup', name: 'jsoup', version: '1.11.3' // 파싱
     // yml 상수값 불러오기
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    // aspect
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 }
