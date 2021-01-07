@@ -25,11 +25,14 @@ public class Answer {
 
     private String answerText;
 
+    private Long surveyId;
+
     public Answer(){};
 
-    public Answer(Member writer, Question question, String answerText) {
+    public Answer(Member writer, Question question, String answerText, Long surveyId) {
         this.question = question;
         this.writer = writer;
         this.answerText = answerText;
+        this.surveyId = surveyId;
     }
 }

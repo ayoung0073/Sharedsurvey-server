@@ -32,8 +32,8 @@ public class QuestionAnswerService {
         requestDto.setWriter(member);
 
         for (QuestionAnswerDto dto : requestDto.getAnswer()) {
-            int result = answerRepository.answerSave(dto.getAnswerText(), dto.getQuestionId(),survey.getWriter().getId());
-            if(result == 0) throw new IllegalArgumentException("답변 저장 실패");
+            int result = answerRepository.answerSave(dto.getAnswerText(), dto.getQuestionId(), member.getId(), surveyId);
+            if (result == 0) throw new IllegalArgumentException("답변 저장 실패");
         }
 
         surveyAnswerRepository.save(surveyAnswer);
@@ -41,35 +41,64 @@ public class QuestionAnswerService {
     }
 
     @Transactional(readOnly = true)
-    public boolean findBySurveyIdAndAnswerMemberId(Long surveyId, Long memberId){
+    public boolean findBySurveyIdAndAnswerMemberId(Long surveyId, Long memberId) {
         return surveyAnswerRepository.findBySurveyIdAndAnswerMemberId(surveyId, memberId).isPresent();
     }
 
     @Transactional(readOnly = true)
-    public List<Map<Object, Object>> getAnswers(Long surveyId){
+    public List<Object> getAnswers(Long surveyId) {
         Survey survey = surveyRepository.findById(surveyId).orElseThrow(
                 () -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다")
         );
         List<Question> questions = survey.getQuestions();
 
-        List<Map<Object, Object>> list = new ArrayList<>();
+        //List<Map<Object, Object>> list = new ArrayList<>();
         List<Answer> answers;
+        List<Object> answerTexts = new ArrayList<>();
+        Map<Object, Object> map;
         System.out.println(questions.size());
         for (Question question : questions) {
-            Map<Object, Object> map = new HashMap<>();
-            System.out.println(question.getQuestionText());
-            answers = question.getAnswers();
-            String[] answerArr = new String[answers.size()];
-            int i = 0;
-            for(Answer a: answers){
-                answerArr[i++] = a.getAnswerText();
+            if (question.getQuestionCategoryId() == 1 || question.getQuestionCategoryId() == 2) {
+                map = new HashMap<>();
+                Map<String, Integer> answerMap = new HashMap<>();
+                answers = question.getAnswers();
+                for (Answer a : answers) {
+                    String answerText = a.getQuestion().getQuestionChoices().get(Integer.parseInt(a.getAnswerText())-1).getChoiceText();
+                    if (answerMap.containsKey(answerText)) answerMap.put(answerText, answerMap.get(answerText) + 1);
+                    else answerMap.put(answerText, 1);
+                }
+                map.put("answerChoice", answerMap);
+                answerTexts.add(map);
+            } else {
+                answers = question.getAnswers();
+                String[] answerArr = new String[answers.size()];
+                int i = 0;
+                for (Answer a : answers) {
+                    answerArr[i++] = a.getAnswerText();
+                }
+                answerTexts.add(answerArr);
             }
-            map.put("questionText", question.getQuestionText());
-            map.put("answerText", answerArr);
-
-            list.add(map);
+            //list.add(map);
         }
-        return list;
+        return answerTexts;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Long, String[]> getOnes(Long surveyId) {
+        List<SurveyAnswer> surveyAnswers = surveyAnswerRepository.findAllBySurveyId(surveyId);
+        Map<Long, String[]> map = new HashMap<>();
+        for (SurveyAnswer surveyAnswer : surveyAnswers) {
+            List<Answer> answers = answerRepository.findAllByWriterIdAndSurveyId(surveyAnswer.getAnswerMember().getId(), surveyAnswer.getSurvey().getId());
+            String[] answerList = new String[answers.size()];
+            for(int i = 0; i < answerList.length; i++){
+                Answer a = answers.get(i);
+                if(a.getQuestion().getQuestionCategoryId() == 1 || a.getQuestion().getQuestionCategoryId() == 2 || a.getQuestion().getQuestionCategoryId() == 3)
+                    answerList[i] = a.getQuestion().getQuestionChoices().get(Integer.parseInt(a.getAnswerText()) - 1).getChoiceText();
+                else answerList[i] = a.getAnswerText();
+            }
+            map.put(surveyAnswer.getAnswerMember().getId(), answerList);
+        }
+        return map;
     }
 
     @Transactional(readOnly = true)
