@@ -50,3 +50,7 @@ spring:
 
 may:
   base_dir: /tmp/tomcat.8080.9056073029680764243/work/Tomcat/localhost/ROOT/
+
+logging:
+  file:
+    path: logs
