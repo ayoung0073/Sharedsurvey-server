@@ -24,8 +24,8 @@ spring:
     password: ayong2gadb
   servlet:
     multipart:
-      max-file-size: 8MB
-      max-request-size: 8MB
+      max-file-size: 100MB
+      max-request-size: 100MB
 
 #  mustache:
 #    suffix: .mustache
@@ -51,6 +51,6 @@ spring:
 may:
   base_dir: /tmp/tomcat.8080.9056073029680764243/work/Tomcat/localhost/ROOT/
 
-logging:
-  file:
-    path: logs
+#logging:
+#  file:
+#    path: logs

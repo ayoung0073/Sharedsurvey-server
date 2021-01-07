@@ -88,10 +88,12 @@ public class FileService {
 
             if (s.getQuestionCategoryId() == 1 || s.getQuestionCategoryId() == 2 || s.getQuestionCategoryId() == 3) {
                 // 질문 카테고리가 객관식, 체크박스, 드롭다운일 때
+                List<QuestionChoice> list = new ArrayList<>();
                 for (int j = 0; j < s.getChoiceTexts().length; j++) {
-                    QuestionChoice questionChoice = new QuestionChoice(survey, question, s.getChoiceTexts()[i]);
-                    questionChoiceRepository.save(questionChoice);
+                    System.out.println(s.getChoiceTexts()[j]);
+                    list.add(new QuestionChoice(survey, question, s.getChoiceTexts()[j]));
                 }
+                questionChoiceRepository.saveAll(list);
             }
         }
     }

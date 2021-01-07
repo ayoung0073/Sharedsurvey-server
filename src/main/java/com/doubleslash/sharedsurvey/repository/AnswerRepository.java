@@ -15,7 +15,11 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     List<Answer> findAllByQuestionId(Long id);
 
     @Modifying
-    @Query(value = "INSERT INTO Answer(answerText, questionId, writerId) VALUES (?1, ?2, ?3)", nativeQuery = true)
-    int answerSave(String answerText, Long questionId, Long writerId);
+    @Query(value = "INSERT INTO Answer(answerText, questionId, writerId, surveyId) VALUES (?1, ?2, ?3, ?4)", nativeQuery = true)
+    int answerSave(String answerText, Long questionId, Long writerId, Long surveyId);
+
+    List<Answer> findAllBySurveyId(Long surveyId);
+
+    List<Answer> findAllByWriterIdAndSurveyId(Long writerId, Long surveyId);
 
 }

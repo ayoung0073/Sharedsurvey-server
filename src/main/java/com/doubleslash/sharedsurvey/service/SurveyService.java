@@ -17,9 +17,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -44,13 +47,19 @@ public class SurveyService {
         String filename;
 
         requestDto.setWriter(member);
+
         Survey survey = surveyRepository.save(new Survey(requestDto));
         int i = 0;
         if(survey.isExistFile()) {
             fileService.saveSurveyFile(survey, files);
             i++;
         }
-        List<QuestionRequestDto> questions = requestDto.getQuestions();
+
+
+        List<QuestionRequestDto> questions = new ArrayList<>();
+        questions = requestDto.getQuestions();
+
+        System.out.println(questions.get(0).getChoiceTexts()[2]);
 
         fileService.saveQuestionSave(survey, questions, files, i); // i: 파일s 인덱스
 
@@ -58,8 +67,6 @@ public class SurveyService {
 
         return true;
     }
-
-
 
     @Transactional
     public boolean updateSurvey(Long id, SurveyUpdateDto updateDto){
@@ -110,6 +117,18 @@ public class SurveyService {
 
         map.put("survey",survey);
 
+        return map;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, String[]> getQuestionTexts(Long surveyId) { // 질문과, 질문카테고리
+        Map<String, String[]> map = new HashMap<>();
+        List<Question> questions = questionRepository.findAllBySurveyId(surveyId);
+        String[] questionTexts = new String[questions.size()];
+        for(int i = 0; i < questions.size(); i++){
+            Question q = questions.get(i);
+            map.put(q.getQuestionText(), q.getChoices());
+        }
         return map;
     }
 

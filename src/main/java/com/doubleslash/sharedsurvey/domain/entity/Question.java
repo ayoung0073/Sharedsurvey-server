@@ -79,4 +79,11 @@ public class Question {
         this.required = updateDto.isRequired();
     }
 
+    public String[] getChoices(){
+        String[] texts = new String[getQuestionChoices().size()];
+        for(int i = 0; i < getQuestionChoices().size(); i++){
+            texts[i] = getQuestionChoices().get(i).getChoiceText();
+        }
+        return texts;
+    }
 }
