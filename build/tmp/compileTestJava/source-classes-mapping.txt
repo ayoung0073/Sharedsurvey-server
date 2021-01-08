@@ -1,0 +1,2 @@
+com/doubleslash/sharedsurvey/SharedsurveyApplicationTests.java
+ com.doubleslash.sharedsurvey.SharedsurveyApplicationTests
