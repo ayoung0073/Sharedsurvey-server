@@ -121,15 +121,20 @@ public class SurveyService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, String[]> getQuestionTexts(Long surveyId) { // 질문과, 질문카테고리
-        Map<String, String[]> map = new HashMap<>();
+    public Map<Long, Map<String, String[]>> getQuestionTexts(Long surveyId) { // 질문과, 질문카테고리
+        Map<String, String[]> map;
         List<Question> questions = questionRepository.findAllBySurveyId(surveyId);
         String[] questionTexts = new String[questions.size()];
+        Map<Long, Map<String, String[]>> ret = new HashMap<>();
         for(int i = 0; i < questions.size(); i++){
             Question q = questions.get(i);
+            //map.put("id", q.getId())
+            map = new HashMap<>();
             map.put(q.getQuestionText(), q.getChoices());
+
+            ret.put(q.getId(), map);
         }
-        return map;
+        return ret;
     }
 
     @Transactional(readOnly = true)

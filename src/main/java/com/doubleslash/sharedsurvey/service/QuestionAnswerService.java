@@ -1,8 +1,6 @@
 package com.doubleslash.sharedsurvey.service;
 
-import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.AnswerRequestDto;
-import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionAnswerDto;
-import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionAnswerResponseDto;
+import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.*;
 import com.doubleslash.sharedsurvey.domain.entity.*;
 import com.doubleslash.sharedsurvey.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +19,7 @@ public class QuestionAnswerService {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final SurveyAnswerRepository surveyAnswerRepository;
+    private final QuestionChoiceRepository choiceRepository;
 
     @Transactional
     public int registerAnswer(Long surveyId, AnswerRequestDto requestDto, Member member) {
@@ -130,5 +129,92 @@ public class QuestionAnswerService {
 
     public List<Answer> getAnswers() {
         return answerRepository.findAll();
+    }
+
+    public Question getQuestionText(Long questionId){
+        return questionRepository.findById(questionId).orElseThrow(
+                () -> new IllegalArgumentException("해당 질문이 없습니다.")
+        );
+    }
+
+    public List<Map<String, GenderCount>> getGender(List<QuestionRepoDto> list, Long questionId){
+        //List<Question> questions = getSurvey(questionId);
+        // 성별로 구분하자
+        Question question = questionRepository.findById(questionId).orElseThrow(
+                () -> new IllegalArgumentException("해당 질문이 존재하지 않습니다")
+        );
+        List<Map<String, GenderCount>> retList = new ArrayList<>();
+        Map<String, GenderCount> map;
+        for(QuestionRepoDto dto: list){
+            map = new HashMap<>();
+            GenderCount genderCount = new GenderCount();
+            if(!map.containsKey(dto.getAnswerText())){
+                if(dto.isGender()) genderCount.setWoman(genderCount.getWoman() + 1);
+                else genderCount.setMan(genderCount.getMan() + 1);
+            }
+            else{
+                if(dto.isGender()) genderCount.setWoman(1);
+                else genderCount.setMan(1);
+            }
+            map.put(choiceRepository.findAllByQuestionId(questionId).get(Integer.parseInt(dto.getAnswerText()) - 1).getChoiceText(), genderCount);
+
+            retList.add(map);
+        }
+
+        return retList;
+    }
+
+    public List<Map<String, AgeCountDto>> getAge(List<QuestionRepoDto> list, Long questionId){
+        //List<Question> questions = getSurvey(questionId);
+        List<Map<String, AgeCountDto>> retList = new ArrayList<>();
+        Map<String, AgeCountDto> map;
+        for(QuestionRepoDto dto: list){
+            map = new HashMap<>();
+            AgeCountDto ageCountDto = new AgeCountDto();
+            int age =  dto.getAge() / 10; // 10대, 20대 ~ -> 단위 10 -> 십의자리수 보기
+            if(!map.containsKey(dto.getAnswerText())) {
+                switch (age) {
+                    case 1:
+                        ageCountDto.setAge10(ageCountDto.getAge10() + 1);
+                    case 2:
+                        ageCountDto.setAge20(ageCountDto.getAge20() + 1);
+                    case 3:
+                        ageCountDto.setAge30(ageCountDto.getAge30() + 1);
+                    case 4:
+                        ageCountDto.setAge40(ageCountDto.getAge40() + 1);
+                    case 5:
+                        ageCountDto.setAge60(ageCountDto.getAge50() + 1);
+                    case 6:
+                        ageCountDto.setAge60(ageCountDto.getAge60() + 1);
+                }
+            }
+            map.put(choiceRepository.findAllByQuestionId(questionId).get(Integer.parseInt(dto.getAnswerText()) - 1).getChoiceText(), ageCountDto);
+
+            retList.add(map);
+        }
+
+        return retList;
+    }
+
+    public List<QuestionRepoDto> getRepoList(Long questionId) {
+        //List<Question> questions = getSurvey(questionId);
+        List<Object[]> writerList = surveyAnswerRepository.getAnswerMembers(questionId);
+
+        List<QuestionRepoDto> list = new ArrayList<>();
+        for (Object[] obj : writerList) {
+            list.add(new QuestionRepoDto((String) obj[0], (boolean) obj[1], (int) obj[2]));
+        }
+
+        return list;
+    }
+
+    public String[] getChoiceTexts(Question q){
+        List<QuestionChoice> list = q.getQuestionChoices();
+        int size = list.size();
+        String[] choiceTexts = new String[size];
+        for(int i = 0; i < size; i++){
+            choiceTexts[i] = list.get(i).getChoiceText();
+        }
+        return choiceTexts;
     }
 }

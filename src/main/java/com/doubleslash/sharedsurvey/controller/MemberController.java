@@ -32,7 +32,7 @@ public class MemberController {
 
     @PostMapping("/join")
     public SuccessDto join(@RequestBody MemberRequestDto requestDto){
-        if (memberService.idCheck(requestDto.getMemberId()) == null) {
+        if (memberService.idCheck(requestDto.getMemberId()) != null) {
             return new SuccessDto(false);
         } else {
             requestDto.setPassword(passwordEncoder.encode(requestDto.getPassword()));

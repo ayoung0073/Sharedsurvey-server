@@ -1,12 +1,14 @@
 package com.doubleslash.sharedsurvey.controller;
 
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.AnswerRequestDto;
+import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionRepoDto;
 import com.doubleslash.sharedsurvey.domain.dto.response.SuccessDto;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyUpdateDto;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyWidelyDto;
 import com.doubleslash.sharedsurvey.domain.entity.Answer;
 import com.doubleslash.sharedsurvey.domain.entity.Member;
+import com.doubleslash.sharedsurvey.domain.entity.Question;
 import com.doubleslash.sharedsurvey.domain.entity.Survey;
 import com.doubleslash.sharedsurvey.service.QuestionAnswerService;
 import com.doubleslash.sharedsurvey.service.PointService;
@@ -93,8 +95,8 @@ public class SurveyController {
     }
 
     @GetMapping("/survey/{surveyId}/answer") // surveyId // 설문조사 응답 보기
-    public Map<Object, Object> getAnswer(@PathVariable Long surveyId, @AuthenticationPrincipal Member member) {
-        Map<Object, Object> map = new HashMap<>();
+    public Map<String, Object> getAnswer(@PathVariable Long surveyId, @AuthenticationPrincipal Member member) {
+        Map<String, Object> map = new HashMap<>();
 
         if (member != null) {
             map.put("success", true);
@@ -103,6 +105,25 @@ public class SurveyController {
             map.put("summary", answerService.getAnswers(surveyId)); // 요약 보기
             map.put("ones", answerService.getOnes(surveyId));
         }
+        else {
+            map.put("success", false);
+            map.put("message", "유효하지 않은 토큰");
+        }
+        return map;
+    }
+
+    @GetMapping("/survey/{questionId}/answer/age-gender") // 나이/성별별 결과
+    public Map<String, Object> ageAndGender(@PathVariable("questionId")  Long questionId, @AuthenticationPrincipal Member member){
+
+        Map<String, Object> map = new HashMap<>();
+        if (member != null) {
+            List<QuestionRepoDto> list = answerService.getRepoList(questionId);
+            Question q = answerService.getQuestionText(questionId);
+            map.put("questionText", q.getQuestionText());
+            map.put("choiceTexts", answerService.getChoiceTexts(q));
+            map.put("gender", answerService.getGender(list, questionId)); // 성별별
+            map.put("age", answerService.getAge(list, questionId)); // 나이별별
+       }
         else {
             map.put("success", false);
             map.put("message", "유효하지 않은 토큰");
@@ -149,6 +170,8 @@ public class SurveyController {
 
         return map;
     }
+
+
 
 }
 
