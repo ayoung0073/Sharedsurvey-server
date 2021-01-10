@@ -59,8 +59,6 @@ public class SurveyService {
         List<QuestionRequestDto> questions = new ArrayList<>();
         questions = requestDto.getQuestions();
 
-        System.out.println(questions.get(0).getChoiceTexts()[2]);
-
         fileService.saveQuestionSave(survey, questions, files, i); // i: 파일s 인덱스
 
         surveyWriterRepository.save(new SurveyWriter(survey.getId(),member.getId()));
@@ -121,20 +119,23 @@ public class SurveyService {
     }
 
     @Transactional(readOnly = true)
-    public Map<Long, Map<String, String[]>> getQuestionTexts(Long surveyId) { // 질문과, 질문카테고리
+    public List<Question> getQuestionTexts(Long surveyId) { // 질문과, 질문카테고리
         Map<String, String[]> map;
         List<Question> questions = questionRepository.findAllBySurveyId(surveyId);
         String[] questionTexts = new String[questions.size()];
         Map<Long, Map<String, String[]>> ret = new HashMap<>();
+        List<Question> questionList = new ArrayList<>();
         for(int i = 0; i < questions.size(); i++){
             Question q = questions.get(i);
             //map.put("id", q.getId())
-            map = new HashMap<>();
-            map.put(q.getQuestionText(), q.getChoices());
 
-            ret.put(q.getId(), map);
+            questionList.add(q);
+//            map = new HashMap<>();
+//            map.put(q.getQuestionText(), q.getChoices());
+//
+//            ret.put(q.getId(), map);
         }
-        return ret;
+        return questionList;
     }
 
     @Transactional(readOnly = true)
@@ -163,12 +164,21 @@ public class SurveyService {
     }
 
     @Transactional(readOnly = true)
-    public List<Survey> getSearchEnd(String searchVal) {
-        return surveyRepository.findAllByEndDateBeforeAndNameContainingOrderByEndDate(new Date(), searchVal);
+    public List<SurveyWidelyDto> getSearchEnd(String searchVal) {
+        List<SurveyWidelyDto> list = new ArrayList<>();
+
+        for(Survey s: surveyRepository.findAllByEndDateBeforeAndNameContainingOrderByEndDate(new Date(), searchVal)){
+            list.add(new SurveyWidelyDto(s));
+        }
+        return list;
     }
 
     @Transactional(readOnly = true)
-    public List<Survey> getSearch(String searchVal) {
-        return surveyRepository.findAllByEndDateAfterAndNameContainingOrderByEndDate(new Date(), searchVal);
+    public List<SurveyWidelyDto> getSearch(String searchVal) {
+        List<SurveyWidelyDto> list = new ArrayList<>();
+        for(Survey s: surveyRepository.findAllByEndDateAfterAndNameContainingOrderByEndDate(new Date(), searchVal)){
+            list.add(new SurveyWidelyDto(s));
+        }
+        return list;
     }
 }

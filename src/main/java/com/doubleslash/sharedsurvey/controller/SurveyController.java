@@ -112,7 +112,7 @@ public class SurveyController {
         return map;
     }
 
-    @GetMapping("/survey/{questionId}/answer/age-gender") // 나이/성별별 결과
+    @GetMapping("/question/{questionId}/answer/age-gender") // 나이/성별별 결과
     public Map<String, Object> ageAndGender(@PathVariable("questionId")  Long questionId, @AuthenticationPrincipal Member member){
 
         Map<String, Object> map = new HashMap<>();
@@ -137,12 +137,12 @@ public class SurveyController {
     }
 
     @GetMapping("/survey")
-    public List<Survey> getSearch(@RequestParam("search") String searchVal) {
+    public List<SurveyWidelyDto> getSearch(@RequestParam("search") String searchVal) {
         return surveyService.getSearch(searchVal);
     }
 
     @GetMapping("/survey/end") // 종료된 설문조사 search
-    public List<Survey> getSearchEnd(@RequestParam("search") String searchVal) {
+    public List<SurveyWidelyDto> getSearchEnd(@RequestParam("search") String searchVal) {
         return surveyService.getSearchEnd(searchVal);
     }
 
@@ -158,20 +158,17 @@ public class SurveyController {
         return map;
     }
 
-    @GetMapping("/{memberId}")
-    public Map<String, Object> myPage(@PathVariable Long memberId, @AuthenticationPrincipal Member member){
+    @GetMapping("/myPage")
+    public Map<String, Object> myPage(@AuthenticationPrincipal Member member){
         Map<String, Object> map = new HashMap<>();
-        if(memberId.equals(member.getId())){
+        if(member != null){
             map.put("success", true);
-            map.put("surveyList", surveyService.getMyInfo(memberId));
-            map.put("point", pointService.getMyPoints(memberId));
+            map.put("surveyList", surveyService.getMyInfo(member.getId()));
+            map.put("point", pointService.getMyPoints(member.getId()));
         }
         else map.put("success", false);
 
         return map;
     }
-
-
-
 }
 
