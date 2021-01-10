@@ -26,6 +26,7 @@ public class Question {
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "surveyId")
+    @JsonIgnore
     private Survey survey;
 
     private int questionCategoryId;
@@ -46,6 +47,7 @@ public class Question {
 
     @OneToMany(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonIgnoreProperties({"question, survey, id"})
+    @JsonIgnore
     private List<QuestionChoice> questionChoices;
 
 
