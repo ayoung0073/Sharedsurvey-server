@@ -55,7 +55,6 @@ public class SurveyService {
             i++;
         }
 
-
         List<QuestionRequestDto> questions = new ArrayList<>();
         questions = requestDto.getQuestions();
 
@@ -130,10 +129,6 @@ public class SurveyService {
             //map.put("id", q.getId())
 
             questionList.add(q);
-//            map = new HashMap<>();
-//            map.put(q.getQuestionText(), q.getChoices());
-//
-//            ret.put(q.getId(), map);
         }
         return questionList;
     }

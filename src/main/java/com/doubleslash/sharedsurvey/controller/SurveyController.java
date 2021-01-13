@@ -1,5 +1,6 @@
 package com.doubleslash.sharedsurvey.controller;
 
+import com.doubleslash.sharedsurvey.SharedsurveyApplication;
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.AnswerRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionRepoDto;
 import com.doubleslash.sharedsurvey.domain.dto.response.SuccessDto;
@@ -18,6 +19,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -28,8 +31,19 @@ public class SurveyController {
     private final PointService pointService;
     private final QuestionAnswerService answerService;
 
+//    @PostMapping("/videoTest")
+//    public boolean createVideo(@RequestPart(value = "video", required = false) MultipartFile file) throws IOException {
+//        String baseDir = "C:\\Users\\82103\\Desktop\\etc";
+//
+//        String filepath = baseDir + "\\" +  file.getOriginalFilename(); //files[i].getOriginalFilename();
+//        System.out.println(filepath);
+//        file.transferTo(new File(filepath));
+//            //surveyRepository.save(survey);
+//        return true;
+//    }
+
     @PostMapping("/survey") // 설문조사 등록
-    public SuccessDto createSurvey(@RequestPart(value = "image", required = false) MultipartFile[] files,
+    public SuccessDto createSurvey(@RequestPart(value = "file", required = false) MultipartFile[] files,
                                              @RequestPart(value = "requestDto") SurveyRequestDto requestDto,
                                              @AuthenticationPrincipal Member member) throws Exception {
         if (member != null)

@@ -76,9 +76,16 @@ public class FileService {
                     question.setFilename(question.getId() + ".png");
                     files[i++].transferTo(new File(filepath));
                     //questionRepository.save(question);
-                } else if (filename.split("\\.")[1].equalsIgnoreCase("jpg") || (filename.split("\\.")[1].equalsIgnoreCase("jpeg"))) {
+                }
+                else if (filename.split("\\.")[1].equalsIgnoreCase("jpg") || (filename.split("\\.")[1].equalsIgnoreCase("jpeg"))) {
                     filepath = baseDir + "/" + question.getId() + ".jpg";//files[i].getOriginalFilename();
                     question.setFilename(question.getId() + ".jpg");
+                    files[i++].transferTo(new File(filepath));
+                    //questionRepository.save(question);
+                }
+                else if (filename.split("\\.")[1].equalsIgnoreCase("mp4")) {
+                    filepath = baseDir + "/" + question.getId() + ".mp4";//files[i].getOriginalFilename();
+                    question.setFilename(question.getId() + ".mp4");
                     files[i++].transferTo(new File(filepath));
                     //questionRepository.save(question);
                 }
@@ -90,7 +97,6 @@ public class FileService {
                 // 질문 카테고리가 객관식, 체크박스, 드롭다운일 때
                 List<QuestionChoice> list = new ArrayList<>();
                 for (int j = 0; j < s.getChoiceTexts().length; j++) {
-                    System.out.println(s.getChoiceTexts()[j]);
                     list.add(new QuestionChoice(survey, question, s.getChoiceTexts()[j]));
                 }
                 questionChoiceRepository.saveAll(list);
