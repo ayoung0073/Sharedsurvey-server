@@ -1,12 +1,12 @@
 package com.doubleslash.sharedsurvey.domain.dto.survey;
 
-import com.doubleslash.sharedsurvey.domain.entity.Member;
 import com.doubleslash.sharedsurvey.domain.entity.Survey;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Setter
@@ -19,11 +19,13 @@ public class SurveyWidelyDto {
 
     private String name;
 
+    private String writerId;
+
     private String category;
 
-    private Date startDate;
+    private LocalDate startDate;
 
-    private Date endDate;
+    private LocalDate endDate;
 
     private boolean existFile;
 
@@ -46,6 +48,7 @@ public class SurveyWidelyDto {
         this.point = survey.getPoint();
         this.state = survey.isState();
         this.responseCount = survey.getResponseCount();
+        this.writerId = survey.getWriter().getMemberId();
     }
 
 }

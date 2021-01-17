@@ -4,6 +4,7 @@ import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionUpdateD
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -17,9 +18,9 @@ public class SurveyUpdateDto {
 
     private String description; // 설문조사 설명
 
-    private Date startDate;
+    private LocalDate startDate;
 
-    private Date endDate;
+    private LocalDate endDate;
 
     private int point;
 

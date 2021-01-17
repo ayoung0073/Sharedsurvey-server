@@ -2,6 +2,7 @@ package com.doubleslash.sharedsurvey.domain.entity;
 
 import com.doubleslash.sharedsurvey.config.security.user.Role;
 import com.doubleslash.sharedsurvey.domain.dto.member.MemberRequestDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,32 +26,40 @@ public class Member implements UserDetails {
 // id, memberId, gender, age, name, password, point
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Long id;
 
     @Column(nullable = false, unique = true)
     private String memberId;
 
     @Column(nullable = false)
+    @JsonIgnore
     private boolean gender; // 여자 - true
 
     @Column(nullable = false)
+    @JsonIgnore
     private int age;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String name;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 
     @Column(nullable = false)
+    @JsonIgnore
     private int point;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     @Transient
+    @JsonIgnore
     private List<String> roles = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
+    @JsonIgnore
     private Role role;
 
     public Member(MemberRequestDto requestDto){
@@ -63,6 +72,7 @@ public class Member implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collectors = new ArrayList<>();
 
@@ -78,26 +88,31 @@ public class Member implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public String getUsername() {
         return memberId;
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isEnabled() {
         return true;
     }

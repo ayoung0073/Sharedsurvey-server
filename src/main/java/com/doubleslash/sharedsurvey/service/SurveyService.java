@@ -100,6 +100,7 @@ public class SurveyService {
         return list;
     }
 
+
     @Transactional(readOnly = true)
     public Map<String, Object> getSurveyAndQuestions(Long surveyId, Long memberId){
         Survey survey = surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다."));

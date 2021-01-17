@@ -5,14 +5,12 @@ import com.doubleslash.sharedsurvey.domain.dto.google.GoogleRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyUpdateDto;
 import com.doubleslash.sharedsurvey.utils.Google;
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -29,7 +27,6 @@ public class Survey extends Timestamped {
 
     @ManyToOne // Many = Survey, One = User
     @JoinColumn(name = "memberId")    // 자동으로 FK 생성
-    @JsonIgnore
     private Member writer; // Member - id
 
     private String name;
@@ -38,9 +35,11 @@ public class Survey extends Timestamped {
 
     private String description;
 
-    private Date startDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-DD", timezone = "Asia/Seoul")
+    private LocalDate startDate;
 
-    private Date endDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-DD", timezone = "Asia/Seoul")
+    private LocalDate endDate;
 
     private boolean state;
 
