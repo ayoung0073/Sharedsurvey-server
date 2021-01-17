@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -25,7 +24,7 @@ public class PointService {
 
 
     @Transactional
-    public int getPoint(Long surveyId, int point, Member member)  {
+    public int getPoint(Long surveyId, Member member)  {
         Survey survey = surveyRepository.findById(surveyId).orElseThrow(
                 () -> {throw new IllegalArgumentException("해당 설문조사가 없습니다.");});
         member.getPoint(survey.getPoint());
@@ -39,7 +38,7 @@ public class PointService {
     @Transactional
     public void usePoint(Member member, Long surveyId){ // 응답 결과 봤을 때
         Survey survey = surveyRepository.findById(surveyId).orElseThrow(
-            () -> {return new IllegalArgumentException("해당 설문조사가 없습니다.");});
+            () -> {throw new IllegalArgumentException("해당 설문조사가 없습니다.");});
         if(member != survey.getWriter()) { // 설문조사 작성자가 아니면 포인트 삭감
             member.usePoint(survey.getPoint()); // 설문조사에 등록된 포인트만큼
             pointRepository.save(new Point(member, false, survey));
@@ -54,5 +53,14 @@ public class PointService {
             list.add(dto);
         }
         return list;
+    }
+
+
+    @Transactional(readOnly = true)
+    public int getMyPoint(Long memberId){
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> {throw new IllegalArgumentException("해당 설문조사가 없습니다.");});
+
+        return member.getPoint();
     }
 }

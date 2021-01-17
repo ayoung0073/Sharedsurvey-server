@@ -14,6 +14,7 @@ import com.doubleslash.sharedsurvey.domain.entity.Survey;
 import com.doubleslash.sharedsurvey.service.QuestionAnswerService;
 import com.doubleslash.sharedsurvey.service.PointService;
 import com.doubleslash.sharedsurvey.service.SurveyService;
+import jdk.nashorn.internal.codegen.ObjectCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -99,7 +100,7 @@ public class SurveyController {
             }
             else {
                 int point = answerService.registerAnswer(surveyId, requestDto, member);
-                map.put("point", pointService.getPoint(surveyId, point, member));
+                map.put("point", pointService.getPoint(surveyId, member));
                 map.put("success", true);
             }
         } else {
@@ -169,6 +170,17 @@ public class SurveyController {
         }
         else map.put("success", false);
 
+        return map;
+    }
+
+    @GetMapping("/point")
+    public Map<String, Object> getPoint(@AuthenticationPrincipal Member member){
+        Map<String, Object> map  = new HashMap<>();
+        if (member != null) {
+            map.put("success",true);
+            map.put("point", pointService.getMyPoint(member.getId()));
+        }
+        else map.put("success", false);
         return map;
     }
 

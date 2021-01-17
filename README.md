@@ -1,10 +1,13 @@
 ## SharedSurvey
 
 #### API Docs
+
+##### URL http://52.79.182.214
+
 - [POST] /join 회원가입
 - [POST] /idCheck 아이디 중복 체크
 - [POST] /login 로그인
-- [GET]  /surveys/end ****종료된 설문조사 모음
+- [GET]  /surveys/end 종료된 설문조사 모음
 - [GET] /surveys 진행중 설문조사 모음
 - [POST] /survey 설문조사 등록
 - [PUT] /survey/{surveyId} 설문조사 수정
@@ -18,3 +21,4 @@
 - [GET] /survey/{surveyId}/me 해당 설문조사에 참여한 내 답변 보기
 - [GET] /myPage 마이페이지 보기
 - [POST] /survey/google 구글 설문조사 첨부
+- [GET] /point 총 포인트 보기
