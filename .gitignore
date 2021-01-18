@@ -36,7 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 
-application.properties
+files/
 application.yml
 
 SecurityConfig.java
