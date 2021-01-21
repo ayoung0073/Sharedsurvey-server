@@ -7,6 +7,7 @@ import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyUpdateDto;
 import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyWidelyDto;
 import com.doubleslash.sharedsurvey.domain.entity.*;
+import com.doubleslash.sharedsurvey.domain.entity.Point;
 import com.doubleslash.sharedsurvey.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -37,6 +38,7 @@ public class SurveyService {
     private final QuestionChoiceRepository questionChoiceRepository;
 
     private final FileService fileService;
+    private final PointService pointService;
     private final ApplicationYmlRead applicationYmlRead;
 
     @Transactional
@@ -84,6 +86,11 @@ public class SurveyService {
         surveyRepository.deleteById(surveyId);
     }
 
+    @Transactional(readOnly = true)
+    public Survey getSurvey(Long surveyId){
+        return surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다."));
+    }
+
     public List<SurveyWidelyDto> getSurveys(){
         List<SurveyWidelyDto> list = new ArrayList<>();
         for(Survey s: surveyRepository.findAllByOrderByEndDateAndResponseCountEndDateAfter()){
@@ -116,9 +123,9 @@ public class SurveyService {
         else map.put("answer", false);
 
         map.put("survey",survey);
-
         return map;
     }
+
 
     @Transactional(readOnly = true)
     public List<Question> getQuestionTexts(Long surveyId) { // 질문과, 질문카테고리

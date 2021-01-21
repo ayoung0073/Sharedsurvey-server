@@ -40,8 +40,14 @@ public class PointService {
         Survey survey = surveyRepository.findById(surveyId).orElseGet(
             () -> {throw new IllegalArgumentException("해당 설문조사가 없습니다.");});
         if(member != survey.getWriter()) { // 설문조사 작성자가 아니면 포인트 삭감
-            member.usePoint(survey.getPoint()); // 설문조사에 등록된 포인트만큼
-            pointRepository.save(new Point(member, false, survey));
+            if(member.getPoint() >= survey.getPoint()) {
+                member.usePoint(survey.getPoint()); // 설문조사에 등록된 포인트만큼
+                memberRepository.save(member);
+                pointRepository.save(new Point(member, false, survey));
+            }
+            else{
+                throw new IllegalArgumentException("포인트 부족");
+            }
         }
     }
 
@@ -57,7 +63,7 @@ public class PointService {
 
 
     @Transactional(readOnly = true)
-    public int getMyPoint(Long memberId){
+    public int getMemberPoint(Long memberId){
         Member member = memberRepository.findById(memberId).orElseGet(
                 () -> {throw new IllegalArgumentException("해당 설문조사가 없습니다.");});
 

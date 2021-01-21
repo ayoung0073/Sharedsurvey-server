@@ -9,6 +9,7 @@ import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyWidelyDto;
 import com.doubleslash.sharedsurvey.domain.entity.Answer;
 import com.doubleslash.sharedsurvey.domain.entity.Member;
 import com.doubleslash.sharedsurvey.domain.entity.Question;
+import com.doubleslash.sharedsurvey.domain.entity.Survey;
 import com.doubleslash.sharedsurvey.service.QuestionAnswerService;
 import com.doubleslash.sharedsurvey.service.PointService;
 import com.doubleslash.sharedsurvey.service.SurveyService;
@@ -110,8 +111,8 @@ public class SurveyController {
 
         if (member != null) {
             map.put("success", true);
-            map.put("questions", surveyService.getQuestionTexts(surveyId)); // 질문 리스트
             pointService.usePoint(member, surveyId);
+            map.put("questions", surveyService.getQuestionTexts(surveyId)); // 질문 리스트
             map.put("summary", answerService.getAnswers(surveyId)); // 요약 보기
             map.put("ones", answerService.getOnes(surveyId));
         }
@@ -173,7 +174,7 @@ public class SurveyController {
         Map<String, Object> map  = new HashMap<>();
         if (member != null) {
             map.put("success",true);
-            map.put("point", pointService.getMyPoint(member.getId()));
+            map.put("point", pointService.getMemberPoint(member.getId()));
         }
         else map.put("success", false);
         return map;
@@ -185,7 +186,7 @@ public class SurveyController {
         if(member != null){
             map.put("success", true);
             map.put("surveyList", surveyService.getMyInfo(member.getId()));
-            map.put("point", pointService.getMyPoints(member.getId()));
+            map.put("point", pointService.getMemberPoint(member.getId()));
         }
         else map.put("success", false);
 

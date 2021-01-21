@@ -99,7 +99,7 @@ public class QuestionAnswerService {
 
     @Transactional(readOnly = true)
     public List<QuestionAnswerResponseDto> getQuestionAndAnswerByMemberId(Long surveyId, Long memberId){
-        List<Question> questions = getSurvey(surveyId);
+        List<Question> questions = getQuestionsBySurvey(surveyId);
 
         List<QuestionAnswerResponseDto> list = new ArrayList<>();
         for(Question q : questions){
@@ -120,7 +120,7 @@ public class QuestionAnswerService {
         return list;
     }
 
-    public List<Question> getSurvey(Long surveyId){
+    public List<Question> getQuestionsBySurvey(Long surveyId){
         return questionRepository.findAllBySurveyId(surveyId);
     }
 
