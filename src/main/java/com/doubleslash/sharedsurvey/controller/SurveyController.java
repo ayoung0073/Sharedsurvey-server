@@ -1,6 +1,5 @@
 package com.doubleslash.sharedsurvey.controller;
 
-import com.doubleslash.sharedsurvey.SharedsurveyApplication;
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.AnswerRequestDto;
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.QuestionRepoDto;
 import com.doubleslash.sharedsurvey.domain.dto.response.SuccessDto;
@@ -10,18 +9,14 @@ import com.doubleslash.sharedsurvey.domain.dto.survey.SurveyWidelyDto;
 import com.doubleslash.sharedsurvey.domain.entity.Answer;
 import com.doubleslash.sharedsurvey.domain.entity.Member;
 import com.doubleslash.sharedsurvey.domain.entity.Question;
-import com.doubleslash.sharedsurvey.domain.entity.Survey;
 import com.doubleslash.sharedsurvey.service.QuestionAnswerService;
 import com.doubleslash.sharedsurvey.service.PointService;
 import com.doubleslash.sharedsurvey.service.SurveyService;
-import jdk.nashorn.internal.codegen.ObjectCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 @RequiredArgsConstructor

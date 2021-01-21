@@ -1,7 +1,6 @@
 package com.doubleslash.sharedsurvey.repository;
 
 import com.doubleslash.sharedsurvey.domain.entity.Answer;
-import org.graalvm.compiler.nodes.extended.ValueAnchorNode;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
