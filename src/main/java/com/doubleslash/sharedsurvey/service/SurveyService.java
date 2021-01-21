@@ -67,7 +67,8 @@ public class SurveyService {
 
     @Transactional
     public boolean updateSurvey(Long id, SurveyUpdateDto updateDto){
-        Survey survey = surveyRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다."));
+        Survey survey = surveyRepository.findById(id).orElseGet(
+                () -> {throw new IllegalArgumentException("해당 설문조사가 없습니다.");});
         survey.updateSurvey(updateDto);
 
         List<QuestionUpdateDto> questions = updateDto.getQuestions();
@@ -103,7 +104,8 @@ public class SurveyService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> getSurveyAndQuestions(Long surveyId, Long memberId){
-        Survey survey = surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다."));
+        Survey survey = surveyRepository.findById(surveyId).orElseGet(
+                () -> {throw new IllegalArgumentException("해당 설문조사가 없습니다.");});
 
         List<Question> questions = survey.getQuestions();
 

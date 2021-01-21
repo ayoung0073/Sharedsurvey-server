@@ -20,8 +20,8 @@ public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return memberRepository.findByMemberId(username)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        return memberRepository.findByMemberId(username).orElseGet(
+                        () -> {throw new IllegalArgumentException("해당 설문조사가 없습니다.");});
     }
 
     @Transactional(readOnly = true)

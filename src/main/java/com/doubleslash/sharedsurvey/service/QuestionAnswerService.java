@@ -46,9 +46,9 @@ public class QuestionAnswerService {
 
     @Transactional(readOnly = true)
     public List<Object> getAnswers(Long surveyId) {
-        Survey survey = surveyRepository.findById(surveyId).orElseThrow(
-                () -> new IllegalArgumentException("해당 설문조사가 존재하지 않습니다")
-        );
+        Survey survey = surveyRepository.findById(surveyId).orElseGet(
+                () -> {throw new IllegalArgumentException("해당 설문조사가 없습니다.");});
+
         List<Question> questions = survey.getQuestions();
 
         //List<Map<Object, Object>> list = new ArrayList<>();
@@ -137,9 +137,9 @@ public class QuestionAnswerService {
     public List<Map<String, GenderCount>> getGender(List<QuestionRepoDto> list, Long questionId){
         //List<Question> questions = getSurvey(questionId);
         // 성별로 구분하자
-        Question question = questionRepository.findById(questionId).orElseThrow(
-                () -> new IllegalArgumentException("해당 질문이 존재하지 않습니다")
-        );
+        Question question = questionRepository.findById(questionId).orElseGet(
+                () -> {throw new IllegalArgumentException("해당 설문조사가 없습니다.");});
+
         List<Map<String, GenderCount>> retList = new ArrayList<>();
         Map<String, GenderCount> map;
         for(QuestionRepoDto dto: list){
