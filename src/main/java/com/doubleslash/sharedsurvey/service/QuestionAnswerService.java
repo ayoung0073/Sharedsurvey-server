@@ -55,7 +55,6 @@ public class QuestionAnswerService {
         List<Answer> answers;
         List<Object> answerTexts = new ArrayList<>();
         Map<Object, Object> map;
-        System.out.println(questions.size());
         for (Question question : questions) {
             if (question.getQuestionCategoryId() == 1 || question.getQuestionCategoryId() == 2) {
                 map = new HashMap<>();
@@ -91,9 +90,7 @@ public class QuestionAnswerService {
             String[] answerList = new String[answers.size()];
             for(int i = 0; i < answerList.length; i++){
                 Answer a = answers.get(i);
-                if(a.getQuestion().getQuestionCategoryId() == 1 || a.getQuestion().getQuestionCategoryId() == 2 || a.getQuestion().getQuestionCategoryId() == 3)
-                    answerList[i] = a.getQuestion().getQuestionChoices().get(Integer.parseInt(a.getAnswerText()) - 1).getChoiceText();
-                else answerList[i] = a.getAnswerText();
+                answerList[i] = a.getAnswerText();
             }
             map.put(surveyAnswer.getAnswerMember().getId(), answerList);
         }
