@@ -13,6 +13,7 @@ import com.doubleslash.sharedsurvey.domain.entity.Survey;
 import com.doubleslash.sharedsurvey.service.QuestionAnswerService;
 import com.doubleslash.sharedsurvey.service.PointService;
 import com.doubleslash.sharedsurvey.service.SurveyService;
+import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -132,8 +133,8 @@ public class SurveyController {
             Question q = answerService.getQuestionText(questionId);
             map.put("questionText", q.getQuestionText());
             map.put("choiceTexts", answerService.getChoiceTexts(q));
-            map.put("gender", answerService.getGender(list, questionId)); // 성별별
-            map.put("age", answerService.getAge(list, questionId)); // 나이별별
+            map.put("gender",  Sets.newHashSet(answerService.getGender(list, q))); // 성별별
+            map.put("age", Sets.newHashSet(answerService.getAge(list, q))); // 나이별별
        }
         else {
             map.put("success", false);
@@ -187,6 +188,7 @@ public class SurveyController {
             map.put("success", true);
             map.put("surveyList", surveyService.getMyInfo(member.getId()));
             map.put("point", pointService.getMemberPoint(member.getId()));
+            map.put("pointList", pointService.getMyPoints(member.getId()));
         }
         else map.put("success", false);
 

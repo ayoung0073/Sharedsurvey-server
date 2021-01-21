@@ -3,14 +3,12 @@ package com.doubleslash.sharedsurvey.service;
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.*;
 import com.doubleslash.sharedsurvey.domain.entity.*;
 import com.doubleslash.sharedsurvey.repository.*;
+import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -31,7 +29,16 @@ public class QuestionAnswerService {
         requestDto.setWriter(member);
 
         for (QuestionAnswerDto dto : requestDto.getAnswer()) {
-            int result = answerRepository.answerSave(dto.getAnswerText(), dto.getQuestionId(), member.getId(), surveyId);
+            int result = 0;
+            if(dto.getAnswerText() instanceof List){
+                Object[] objs = ((List<?>) dto.getAnswerText()).toArray();
+                for (Object obj : objs){
+                    result = answerRepository.answerSave(obj.toString(), dto.getQuestionId(), member.getId(), surveyId);
+                }
+            }
+            else{
+                result = answerRepository.answerSave(dto.getAnswerText().toString(), dto.getQuestionId(), member.getId(), surveyId);
+            }
             if (result == 0) throw new IllegalArgumentException("답변 저장 실패");
         }
 
@@ -82,26 +89,42 @@ public class QuestionAnswerService {
     }
 
     @Transactional(readOnly = true)
-    public Map<Long, String[]> getOnes(Long surveyId) {
+    public Map<Long, Object> getOnes(Long surveyId) {
         List<SurveyAnswer> surveyAnswers = surveyAnswerRepository.findAllBySurveyId(surveyId);
-        Map<Long, String[]> map = new HashMap<>();
+        Map<Long, Object> map = new HashMap<>();
+        Long before = 0L;
+
+
         for (SurveyAnswer surveyAnswer : surveyAnswers) {
             List<Answer> answers = answerRepository.findAllByWriterIdAndSurveyId(surveyAnswer.getAnswerMember().getId(), surveyAnswer.getSurvey().getId());
-            String[] answerList = new String[answers.size()];
-            for(int i = 0; i < answerList.length; i++){
-                Answer a = answers.get(i);
-                answerList[i] = a.getAnswerText();
+            List<Object> answerList = new ArrayList<>();
+            List<String> list = new ArrayList<>();
+
+            for (Answer a : answers) {
+                if (a.getQuestion().getQuestionCategoryId() == 2) {
+                    if (!before.equals(a.getQuestion().getId())) {
+                        before = a.getQuestion().getId();
+                        if (before != 0L) {
+                            answerList.add(list);
+                        }
+                        list.clear();
+                    }
+                    list.add(a.getAnswerText());
+                } else
+                    answerList.add(a.getAnswerText());
             }
+
             map.put(surveyAnswer.getAnswerMember().getId(), answerList);
+            before = 0L;
         }
         return map;
     }
 
     @Transactional(readOnly = true)
-    public List<QuestionAnswerResponseDto> getQuestionAndAnswerByMemberId(Long surveyId, Long memberId){
+    public List<Object> getQuestionAndAnswerByMemberId(Long surveyId, Long memberId){
         List<Question> questions = getQuestionsBySurvey(surveyId);
 
-        List<QuestionAnswerResponseDto> list = new ArrayList<>();
+        List<Object> list = new ArrayList<>();
         for(Question q : questions){
             QuestionAnswerResponseDto dto = new QuestionAnswerResponseDto();
             dto.setQuestion(q.getQuestionText());
@@ -114,8 +137,18 @@ public class QuestionAnswerService {
             }
 
             dto.setChoiceTexts(choiceTexts);
-            dto.setAnswer(answerRepository.findByQuestionIdAndWriterId(q.getId(), memberId).getAnswerText());
-            list.add(dto);
+            if(q.getQuestionCategoryId() == 2){
+                List<Answer> answerList = answerRepository.findAllByQuestionIdAndWriterId(q.getId(), memberId);
+                String[] answers = new String[answerList.size()];
+                for(int i = 0; i < answers.length; i++){
+                    answers[i] = answerList.get(i).getAnswerText();
+                }
+                list.add(answers);
+            }
+            else {
+                dto.setAnswer(answerRepository.findByQuestionIdAndWriterId(q.getId(), memberId).getAnswerText());
+                list.add(dto);
+            }
         }
         return list;
     }
@@ -134,11 +167,7 @@ public class QuestionAnswerService {
         );
     }
 
-    public List<Map<String, GenderCount>> getGender(List<QuestionRepoDto> list, Long questionId){
-        //List<Question> questions = getSurvey(questionId);
-        // 성별로 구분하자
-        Question question = questionRepository.findById(questionId).orElseGet(
-                () -> {throw new IllegalArgumentException("해당 설문조사가 없습니다.");});
+    public List<Map<String, GenderCount>> getGender(List<QuestionRepoDto> list, Question question){
 
         List<Map<String, GenderCount>> retList = new ArrayList<>();
         Map<String, GenderCount> map;
@@ -153,7 +182,7 @@ public class QuestionAnswerService {
                 if(dto.isGender()) genderCount.setWoman(1);
                 else genderCount.setMan(1);
             }
-            map.put(choiceRepository.findAllByQuestionId(questionId).get(Integer.parseInt(dto.getAnswerText()) - 1).getChoiceText(), genderCount);
+            map.put(question.getChoices()[Integer.parseInt(dto.getAnswerText()) - 1], genderCount);
 
             retList.add(map);
         }
@@ -161,7 +190,7 @@ public class QuestionAnswerService {
         return retList;
     }
 
-    public List<Map<String, AgeCountDto>> getAge(List<QuestionRepoDto> list, Long questionId){
+    public List<Map<String, AgeCountDto>> getAge(List<QuestionRepoDto> list, Question question){
         //List<Question> questions = getSurvey(questionId);
         List<Map<String, AgeCountDto>> retList = new ArrayList<>();
         Map<String, AgeCountDto> map;
@@ -185,7 +214,8 @@ public class QuestionAnswerService {
                         ageCountDto.setAge60(ageCountDto.getAge60() + 1);
                 }
             }
-            map.put(choiceRepository.findAllByQuestionId(questionId).get(Integer.parseInt(dto.getAnswerText()) - 1).getChoiceText(), ageCountDto);
+            map.put(question.getChoices()[Integer.parseInt(dto.getAnswerText()) - 1], ageCountDto);
+            //map.put(choiceRepository.findAllByQuestionId(questionId).get(Integer.parseInt(dto.getAnswerText()) - 1).getChoiceText(), ageCountDto);
 
             retList.add(map);
         }
@@ -196,6 +226,7 @@ public class QuestionAnswerService {
     public List<QuestionRepoDto> getRepoList(Long questionId) {
         //List<Question> questions = getSurvey(questionId);
         List<Object[]> writerList = surveyAnswerRepository.getAnswerMembers(questionId);
+        //Set<Object[]> questionSet =  Sets.newHashSet(writerList);
 
         List<QuestionRepoDto> list = new ArrayList<>();
         for (Object[] obj : writerList) {

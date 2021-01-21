@@ -12,5 +12,5 @@ public class QuestionAnswerResponseDto {
 
     private int questionCategoryId;
     private String[] choiceTexts;
-    private String answer;
+    private Object answer;
 }

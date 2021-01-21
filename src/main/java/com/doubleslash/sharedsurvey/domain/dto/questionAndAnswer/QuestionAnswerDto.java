@@ -10,5 +10,5 @@ public class QuestionAnswerDto {
 
     private Long questionId;
 
-    private String answerText;
+    private Object answerText;
 }

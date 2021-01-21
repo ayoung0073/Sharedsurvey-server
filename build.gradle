@@ -38,4 +38,6 @@ dependencies {
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     // aspect
     implementation 'org.springframework.boot:spring-boot-starter-aop'
+    // list -> set
+    implementation("com.google.guava:guava:28.2-jre")
 }
