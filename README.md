@@ -3,17 +3,13 @@
 
 ### 🛠 사용 기술 & 개발 환경
 
-**BackEnd**   ```Java 8``` ```Spring Boot``` ```Spring Data JPA``` 
+```Java8``` ```Spring Boot``` ```Spring Data JPA``` 
+```Gradle``` ```CI/CD```
+```AWS RDS MySQL```
+```AWS EC2```
+```IntelliJ IDEA```
 
-**Build Tool** Gradle 7.0
-
-**Database**   ```AWS RDS MySQL```
-
-**Server** ```AWS EC2```
-
-**IDE** ```IntelliJ IDEA```
-
-#### API Docs
+### ✏ API Docs
 
 - [POST] /join 회원가입
 - [POST] /idCheck 아이디 중복 체크
