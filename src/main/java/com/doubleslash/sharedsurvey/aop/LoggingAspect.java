@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Aspect
 @Component
 public class LoggingAspect {
@@ -29,7 +31,7 @@ public class LoggingAspect {
             type = "Service - '";
         }
 
-        logger.info(type + name + "." + joinPoint.getSignature().getName() + "'");
+        logger.info(type + name + "." + joinPoint.getSignature().getName() + "' ->" + Arrays.toString(joinPoint.getArgs()));
         // getName - 메서드 이름
         return joinPoint.proceed();
     }

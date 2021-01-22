@@ -58,7 +58,7 @@ public class SurveyService {
         }
 
         List<QuestionRequestDto> questions = new ArrayList<>();
-        questions = requestDto.getQuestions();
+        questions = Arrays.asList(requestDto.getQuestions());
 
         fileService.saveQuestionSave(survey, questions, files, i); // i: 파일s 인덱스
 

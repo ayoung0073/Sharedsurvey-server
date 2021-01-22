@@ -113,7 +113,7 @@ public class SurveyController {
         if (member != null) {
             map.put("success", true);
             pointService.usePoint(member, surveyId);
-            map.put("questions", surveyService.getQuestionTexts(surveyId)); // 질문 리스트
+            map.put("survey", surveyService.getSurvey(surveyId)); //
             map.put("summary", answerService.getAnswers(surveyId)); // 요약 보기
             map.put("ones", answerService.getOnes(surveyId));
         }
