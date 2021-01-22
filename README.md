@@ -11,8 +11,6 @@
 
 **Server** ```AWS EC2```
 
-**Library** ```Google Custom Search API``` 
-
 **IDE** ```IntelliJ IDEA```
 
 #### API Docs
