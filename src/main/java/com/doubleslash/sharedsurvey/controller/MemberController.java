@@ -8,9 +8,7 @@ import com.doubleslash.sharedsurvey.domain.dto.response.SuccessTokenDto;
 import com.doubleslash.sharedsurvey.domain.entity.Member;
 import com.doubleslash.sharedsurvey.service.MemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,7 +45,7 @@ public class MemberController {
           Member member = memberService.idCheck(requestDto.getMemberId());
 
         if (member == null)
-            return new SuccessMessageDto(false, "해당 아이디가 존재하지 않습니다");
+            return new SuccessMessageDto(false, "해당 아이디가 존재하지 않습니다.");
         else {
             if (!passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
                 return new SuccessMessageDto(false, "비밀번호를 확인해주세요");
@@ -55,15 +53,6 @@ public class MemberController {
             else{
                 return new SuccessTokenDto(true, jwtTokenProvider.generateToken(member));
             }
-        }
-    }
-
-    @GetMapping("/checkJWT")
-    public String list(@AuthenticationPrincipal Member user){
-        if(user == null) return "유효하지 않은 토큰";
-
-        else {
-            return user.getAuthorities() + " / " + user.getMemberId() + " / " + user.getPassword();
         }
     }
 }
