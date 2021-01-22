@@ -1,8 +1,21 @@
 ## SharedSurvey
 
-#### API Docs
 
-##### URL http://52.79.182.214
+### 🛠 사용 기술 & 개발 환경
+
+**BackEnd**   ```Java 8``` ```Spring Boot``` ```Spring Data JPA``` 
+
+**Build Tool** Gradle 7.0
+
+**Database**   ```AWS RDS MySQL```
+
+**Server** ```AWS EC2```
+
+**Library** ```Google Custom Search API``` 
+
+**IDE** ```IntelliJ IDEA```
+
+#### API Docs
 
 - [POST] /join 회원가입
 - [POST] /idCheck 아이디 중복 체크
