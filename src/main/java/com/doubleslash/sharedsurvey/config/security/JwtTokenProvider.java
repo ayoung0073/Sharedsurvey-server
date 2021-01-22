@@ -1,5 +1,6 @@
 package com.doubleslash.sharedsurvey.config.security;
 
+import com.doubleslash.sharedsurvey.domain.entity.Member;
 import com.doubleslash.sharedsurvey.service.MemberService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -27,8 +28,13 @@ public class JwtTokenProvider {
     private String secretKey = "webfirewood";
 
     // 토큰 유효시간 2시간으로 일단.. 120 -> 30
-    private long tokenValidTime = 120 * 60 * 1000L;
+    private long tokenValidTime = 120 * 60 * 1000L ;
 
+    public final static long TOKEN_VALIDATION_SECOND = 1000L * 60 * 120;
+    public final static long REFRESH_TOKEN_VALIDATION_SECOND = 1000L * 60 * 24 * 2;
+
+    final static public String ACCESS_TOKEN_NAME = "accessToken";
+    final static public String REFRESH_TOKEN_NAME = "refreshToken";
     private final MemberService userDetailsService;
 
     // 객체 초기화, secretKey를 Base64로 인코딩한다.
@@ -75,6 +81,32 @@ public class JwtTokenProvider {
             return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
             return false;
+
         }
+    }
+
+    public String doGenerateToken(String userPk,  List<String> roles, Long expireTime) {
+        System.out.println(userPk);
+        Claims claims = Jwts.claims().setSubject(userPk); // JWT payload 에 저장되는 정보단위
+        claims.put("roles", roles); // 정보는 key / value 쌍으로 저장된다.
+        Date now = new Date();
+        return Jwts.builder()
+                .setClaims(claims) // 정보 저장
+                .setIssuedAt(now) // 토큰 발행 시간 정보
+                .setExpiration(new Date(now.getTime() + tokenValidTime)) // set Expire Time
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                // 사용할 암호화 알고리즘과
+                // signature 에 들어갈 secret값 세팅
+                .compact();
+    }
+
+    //  Token
+    public String generateToken(Member member) {
+        return doGenerateToken(member.getUsername(), member.getRoles(), TOKEN_VALIDATION_SECOND);
+    }
+
+    // Refresh Token
+    public String generateRefreshToken(Member member) {
+        return doGenerateToken(member.getUsername(), member.getRoles(),REFRESH_TOKEN_VALIDATION_SECOND);
     }
 }

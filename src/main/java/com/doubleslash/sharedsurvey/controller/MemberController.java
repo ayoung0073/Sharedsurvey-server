@@ -53,7 +53,7 @@ public class MemberController {
                 return new SuccessMessageDto(false, "비밀번호를 확인해주세요");
             }
             else{
-                return new SuccessTokenDto(true, jwtTokenProvider.createToken(member.getUsername(), member.getRoles()));
+                return new SuccessTokenDto(true, jwtTokenProvider.generateToken(member));
             }
         }
     }
