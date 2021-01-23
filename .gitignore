@@ -1,7 +1,7 @@
 .gradle
 .idea
-
 application.yml
 
+build/
 build
 out
