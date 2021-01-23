@@ -29,17 +29,6 @@ public class SurveyController {
     private final PointService pointService;
     private final QuestionAnswerService answerService;
 
-//    @PostMapping("/videoTest")
-//    public boolean createVideo(@RequestPart(value = "video", required = false) MultipartFile file) throws IOException {
-//        String baseDir = "C:\\Users\\82103\\Desktop\\etc";
-//
-//        String filepath = baseDir + "\\" +  file.getOriginalFilename(); //files[i].getOriginalFilename();
-//        System.out.println(filepath);
-//        file.transferTo(new File(filepath));
-//            //surveyRepository.save(survey);
-//        return true;
-//    }
-
     @PostMapping("/survey") // 설문조사 등록
     public SuccessDto createSurvey(@RequestPart(value = "file", required = false) MultipartFile[] files,
                                              @RequestPart(value = "requestDto") SurveyRequestDto requestDto,
