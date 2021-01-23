@@ -1,8 +1,15 @@
 ## SharedSurvey
 
-#### API Docs
 
-##### URL http://52.79.182.214
+### 🛠 사용 기술 & 개발 환경
+
+```Java8``` ```Spring Boot``` ```Spring Data JPA``` 
+```Gradle``` ```CI/CD```
+```AWS RDS MySQL```
+```AWS EC2```
+```IntelliJ IDEA```
+
+### ✏ API Docs
 
 - [POST] /join 회원가입
 - [POST] /idCheck 아이디 중복 체크
