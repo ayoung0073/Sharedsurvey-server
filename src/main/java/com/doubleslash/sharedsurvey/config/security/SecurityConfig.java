@@ -27,14 +27,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // static 디렉터리의 하위 파일 목록은 인증 무시(=> 항상 통과)
     }
 
-    // 암호화에 필요한 PasswordEncoder 를 Bean 등록합니다.
+    // 암호화에 필요한 PasswordEncoder 를 Bean 등록
     @Bean
     public PasswordEncoder passwordEncoder(){
         //return new BCryptPasswordEncoder();
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    // authenticationManager를 Bean 등록합니다.
+    // authenticationManager를 Bean 등록
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -62,36 +62,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // UsernamePasswordAuthenticationFilter 전에 넣는다
     }
 }
-
-//    @Override
-//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        //super.configure(auth);
-//        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-//    }
-
-
-        //super.configure(http);
-//        http.authorizeRequests()
-//                // 페이지 권한 설정
-//                .antMatchers("/admin/**").hasRole("ADMIN")
-//                .antMatchers("/**").permitAll()
-//                .and() // 로그인 설정
-//                .formLogin()
-//                .loginPage("/member/login")
-//                .usernameParameter("email")
-//                .passwordParameter("pw") // form 에서 name을 email, pw로 설정
-//                .defaultSuccessUrl("/")
-//                .failureUrl("/member/login")
-//                .permitAll()
-//                .and() // 로그아웃 설정
-//                .logout()
-//                .logoutRequestMatcher(new AntPathRequestMatcher("/member/logout"))
-//                .logoutSuccessUrl("/member/logout/result")
-//                .invalidateHttpSession(true)
-//                .and()
-//                // 403 예외처리 핸들링
-//                .exceptionHandling().accessDeniedPage("/member/denied");
-
 
 
 

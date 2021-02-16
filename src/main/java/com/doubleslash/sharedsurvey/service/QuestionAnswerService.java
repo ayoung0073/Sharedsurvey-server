@@ -3,7 +3,6 @@ package com.doubleslash.sharedsurvey.service;
 import com.doubleslash.sharedsurvey.domain.dto.questionAndAnswer.*;
 import com.doubleslash.sharedsurvey.domain.entity.*;
 import com.doubleslash.sharedsurvey.repository.*;
-import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +16,6 @@ public class QuestionAnswerService {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final SurveyAnswerRepository surveyAnswerRepository;
-    private final QuestionChoiceRepository choiceRepository;
 
     @Transactional
     public int registerAnswer(Long surveyId, AnswerRequestDto requestDto, Member member) {
@@ -174,49 +172,31 @@ public class QuestionAnswerService {
         for(QuestionRepoDto dto: list){
             map = new HashMap<>();
             GenderCount genderCount = new GenderCount();
-            if(!map.containsKey(dto.getAnswerText())){
-                if(dto.isGender()) genderCount.setWoman(genderCount.getWoman() + 1);
-                else genderCount.setMan(genderCount.getMan() + 1);
-            }
-            else{
-                if(dto.isGender()) genderCount.setWoman(1);
-                else genderCount.setMan(1);
-            }
+            if(dto.isGender()) genderCount.setWoman(genderCount.getWoman() + 1);
+            else genderCount.setMan(genderCount.getMan() + 1);
             map.put(question.getChoices()[Integer.parseInt(dto.getAnswerText()) - 1], genderCount);
 
             retList.add(map);
         }
-
         return retList;
     }
 
-    public List<Map<String, AgeCountDto>> getAge(List<QuestionRepoDto> list, Question question){
+    public List<Map<String, List<Integer>>> getAge(List<QuestionRepoDto> list, Question question){
         //List<Question> questions = getSurvey(questionId);
-        List<Map<String, AgeCountDto>> retList = new ArrayList<>();
-        Map<String, AgeCountDto> map;
+        List<Map<String, List<Integer>>> retList = new ArrayList<>();
+        Map<String, List<Integer>> map = new HashMap<>();
         for(QuestionRepoDto dto: list){
-            map = new HashMap<>();
-            AgeCountDto ageCountDto = new AgeCountDto();
-            int age =  dto.getAge() / 10; // 10대, 20대 ~ -> 단위 10 -> 십의자리수 보기
-            if(!map.containsKey(dto.getAnswerText())) {
-                switch (age) {
-                    case 1:
-                        ageCountDto.setAge10(ageCountDto.getAge10() + 1);
-                    case 2:
-                        ageCountDto.setAge20(ageCountDto.getAge20() + 1);
-                    case 3:
-                        ageCountDto.setAge30(ageCountDto.getAge30() + 1);
-                    case 4:
-                        ageCountDto.setAge40(ageCountDto.getAge40() + 1);
-                    case 5:
-                        ageCountDto.setAge60(ageCountDto.getAge50() + 1);
-                    case 6:
-                        ageCountDto.setAge60(ageCountDto.getAge60() + 1);
-                }
+            String answerText = question.getChoices()[Integer.parseInt(dto.getAnswerText()) - 1];
+            if(!map.containsKey(answerText)){
+                List<Integer> ageList = new ArrayList<>();
+                ageList.add(dto.getAge());
+                map.put(answerText, ageList);
             }
-            map.put(question.getChoices()[Integer.parseInt(dto.getAnswerText()) - 1], ageCountDto);
-            //map.put(choiceRepository.findAllByQuestionId(questionId).get(Integer.parseInt(dto.getAnswerText()) - 1).getChoiceText(), ageCountDto);
-
+            else {
+                List<Integer> ageList = map.get(answerText);
+                ageList.add(dto.getAge());
+                map.put(answerText, ageList);
+            }
             retList.add(map);
         }
 
