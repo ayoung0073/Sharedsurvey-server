@@ -170,7 +170,7 @@ public class SurveyController {
         return map;
     }
 
-    @GetMapping("/myPage")
+    @GetMapping("/my-page")
     public Map<String, Object> myPage(@AuthenticationPrincipal Member member){
         Map<String, Object> map = new HashMap<>();
         if(member != null){

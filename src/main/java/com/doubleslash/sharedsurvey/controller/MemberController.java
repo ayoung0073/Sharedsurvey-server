@@ -21,7 +21,7 @@ public class MemberController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @PostMapping("/idCheck")
+    @PostMapping("/id-check")
     public SuccessDto idCheck(@RequestBody MemberRequestDto requestDto){
         // 기존에 있으면 false
         if(memberService.idCheck(requestDto.getMemberId()) == null) return new SuccessDto(true);

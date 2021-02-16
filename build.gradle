@@ -40,4 +40,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     // list -> set
     implementation("com.google.guava:guava:28.2-jre")
+    // api tool
+    compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.5.0'
+    compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.5.0'
 }
