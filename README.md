@@ -1,5 +1,8 @@
 ## SharedSurvey
 
+대학생들을 위한 설문조사 공유 플랫폼 <br>
+
+[![SharedSurvey](https://user-images.githubusercontent.com/69340410/117041108-90493e80-ad45-11eb-81f3-5e128e28a800.png)](https://youtu.be/QWAXdYHUFtg)
 
 ### 🛠 사용 기술 & 개발 환경
 
